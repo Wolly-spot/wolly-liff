@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>LINEユーザーID・グループID取得</title>
+  <!-- LIFF SDK 読み込み -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <!-- ボタン -->
+  <button id="getId">IDを取得</button>
+
+  <script>
+    // LIFF初期化
+    async function main() {
+      await liff.init({ liffId: "2007823365-6Q0pLqgd" }); // LIFF IDを組み込み済み
+    }
+
+    main();
+
+    // ボタン押下時の処理
+    document.getElementById("getId").addEventListener("click", async () => {
+      try {
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+
+        // グループIDはトークルームがグループの場合のみ取得
+        let groupId = null;
+        if (liff.getContext().type === "group") {
+          groupId = liff.getContext().groupId;
+        }
+
+        // GASのWebアプリに送信
+        fetch("https://script.google.com/macros/s/AKfycbybYSyAffnaTwAw6QbvCCe_C4tgKm3n6p2OI0yQMhc4pYFrhzrXul3HkszbwZNQ_EoiSQ/exec", {
+          method: "POST",
+          body: JSON.stringify({ userId: userId, groupId: groupId }),
+          headers: { "Content-Type": "application/json" }
+        });
+
+        alert("送信完了\nユーザーID: " + userId + "\nグループID: " + (groupId || "なし"));
+      } catch (err) {
+        console.error(err);
+        alert("取得できませんでした");
+      }
+    });
+  </script>
+</body>
+</html>
