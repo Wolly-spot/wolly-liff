@@ -10,8 +10,8 @@
 window.WOLLY = {
   gasUrl: 'https://script.google.com/macros/s/AKfycbwv5gVNmYIem_rxce3Zo50cPFtFQ2duU6PqFN61-bjXfDycVBzF3nqpSZwsPaLe26aFSQ/exec',
   liff: {
-    user: '0000000000-xxxxxxxx',
-    client: '0000000000-yyyyyyyy'
+    user: '2007823365-RNfPYqlv',
+    client: '2008208202-S9qM2QBx'
   },
   termsUrl: '',
   privacyUrl: '',
