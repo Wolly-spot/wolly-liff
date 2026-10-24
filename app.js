@@ -221,12 +221,20 @@ async function u05(){
 }
 
 /* ---------- 出退勤（テスト用画面だけ。LINEではリッチメニューの定型文で記録） ---------- */
-async function checkin(){
-  const T='出退勤（テスト）';loading(T);
+/* ---------- U-06 出退勤（リッチメニュー「Check-In / Check-Out」） ---------- */
+async function u06(){
+  const T='出退勤';loading(T);
   let l;try{l=await call('myShifts')}catch(e){return fail(T,e)}
-  shell(T,'<p class="note">LINEでは、リッチメニューの「Check-In / Check-Out」で記録します。</p>'+
-   (l.length?l.map(a=>`<div class="card"><b>${esc(a.dateLabel)} ${esc(a.start)}〜${esc(a.end)}</b><div>${esc(a.title)}（${esc(a.clientName)}）</div><p class="note">出勤 ${esc(a.checkin||'—')}｜退勤 ${esc(a.checkout||'—')}</p>${a.checkout?'':`<button class="btn-main" data-app="${esc(a.id)}">${a.checkin?'チェックアウト':'チェックイン'}</button>`}</div>`).join(''):'<p class="note">採用が確定した勤務はありません。</p>'));
-  app.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',async()=>{b.disabled=true;busy(true,'記録しています…');try{const r=await call('checkin',{appId:b.dataset.app});toast(r.message);checkin()}catch(e){toast(e.message);b.disabled=false}finally{busy(false)}}));
+  const hm=v=>String(v||'').slice(-5);
+  shell(T,(l.length?l.map(a=>`<div class="card shift"><b class="jdate">${esc(a.dateLabel)} ${esc(a.start)}〜${esc(a.end)}</b><h2 class="jtitle">${esc(a.title)}</h2><p class="note">${esc(a.clientName)}｜${esc(a.place||'')}</p>
+    <div class="punch"><div><span>出勤</span><b>${a.checkin?esc(hm(a.checkin)):'—'}</b></div><div><span>退勤</span><b>${a.checkout?esc(hm(a.checkout)):'—'}</b></div></div>
+    ${a.checkout?'<p class="okbox">今日の記録は完了しています。お疲れさまでした。</p>':`<button class="btn-main" type="button" data-app="${esc(a.id)}" data-kind="${a.checkin?'out':'in'}">${a.checkin?'チェックアウト（退勤）':'チェックイン（出勤）'}</button>`}</div>`).join('')
+    :'<div class="warnbox">今日の勤務予定はありません。</div><p class="note">採用が決まったお仕事の当日に、ここから出勤・退勤を記録します。</p>')
+    +'<p class="note">押した時刻がそのまま記録されます。押し忘れたときや、遅刻・欠勤のときは、Wollyのトークで連絡してください。</p>');
+  app.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',async()=>{
+    if(b.dataset.kind==='out'&&!confirm('チェックアウト（退勤）を記録しますか？'))return;
+    b.disabled=true;busy(true,'記録しています…');
+    try{const r=await call('checkin',{appId:b.dataset.app});toast(r.message);await u06()}catch(e){toast(e.message);b.disabled=false}finally{busy(false)}}));
 }
 
 /* ===================== パートナー ===================== */
@@ -416,7 +424,7 @@ async function c05(){
 }
 
 /* ===================== 起動 ===================== */
-const PAGES = APP === 'client' ? { c01, c02, c03, c04, c05, c07 } : Object.assign({ u01, u00, u03, u05 }, TEST ? { checkin } : {});
+const PAGES = APP === 'client' ? { c01, c02, c03, c04, c05, c07 } : { u01, u00, u03, u05, u06, checkin: u06 };
 /* 画面を移るリンク（メニュー・「応募者を見る」など）を押したら、次の画面が出るまで「読み込み中」を出す */
 document.addEventListener('click', e => {
   const a = e.target.closest('a[href]');
@@ -432,7 +440,7 @@ window.addEventListener('pageshow', () => busy(false));
       /* テスト用画面の上に、LINEのリッチメニューの代わりになるボタンを出す（URLを打たずに画面を行き来できる） */
       const menu = APP === 'client'
         ? [['c01', 'パートナー登録'], ['c02', '依頼する'], ['c03', '依頼状況'], ['c05', '無料相談']]
-        : [['u01', '求人一覧'], ['u00', 'マイページ登録'], ['u05', '応募状況'], ['checkin', '出退勤']];
+        : [['u01', '求人一覧'], ['u00', 'マイページ登録'], ['u05', '応募状況'], ['u06', '出退勤']];
       /* 誰として操作するかを切り替える（別の会社・別の人として試すため） */
       const who = APP === 'client' ? 'パートナー' : 'メンバー', pre = APP === 'client' ? 'TEST-CLIENT-' : 'TEST-USER-';
       const swap = n => { const q = new URLSearchParams(CFG.query || ''); q.set('page', C.page || Object.keys(PAGES)[0]); q.set('uid', pre + n); q.delete('edit'); return CFG.baseUrl + '?' + q.toString(); };

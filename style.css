@@ -138,3 +138,10 @@ body[data-app="user"] .liff{width:calc(100% - 24px);margin:12px auto 32px;border
 .testwho span{color:var(--muted);margin-right:2px}
 .testwho a{padding:6px 10px;min-height:36px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);text-decoration:none}
 .testwho a[aria-current="true"]{border-color:var(--accent);background:var(--accent-weak);font-weight:700}
+
+/* ---------- U-06 出退勤 ---------- */
+.shift{display:flex;flex-direction:column;gap:8px}
+.punch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0}
+.punch div{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;background:var(--surface2)}
+.punch span{display:block;font-size:12.5px;color:var(--muted)}
+.punch b{font-size:24px;letter-spacing:.04em}
