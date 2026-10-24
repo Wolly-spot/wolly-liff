@@ -236,6 +236,14 @@ async function u05(){
 
 const TYPE_NAME={job:'求人',ad:'広告'};
 
+/* 依頼の画面を、登録前・承認前に開いたときの案内（未登録なら登録へのボタン、承認待ちなら今の状態） */
+function notReady(d,what,type){
+  if(!d.registered)return `<div class="warnbox"><b>${what}には、パートナー登録が必要です</b>はじめに会社・お店の情報を登録してください（約3分）。運営が確認して承認すると、ご依頼いただけるようになります。</div>
+    <a class="btn-main linkbtn" href="${esc(url('c01',type?{type}:{}))}">パートナー登録へ進む</a>`;
+  return `<div class="warnbox"><b>ただいま登録内容を確認しています（状態：${esc(d.status)}）</b>${d.zoomWish==='希望する'?'ZOOM面談のあと、':''}運営が承認すると、メニューが切り替わり、ご依頼いただけるようになります。承認のお知らせはこのトークに届きます。</div>
+    <a class="btn-sub" href="${esc(url('c01'))}">登録内容を見る</a>`;
+}
+
 /* ---------- C-01 パートナー登録（求人／広告を選んでから入力） ---------- */
 async function c01(){
   const T='パートナー登録';loading(T);
@@ -280,7 +288,7 @@ async function c01(){
 async function c02(){
   const T='求人依頼';loading(T);
   let d;try{d=await call('getClient')}catch(e){return fail(T,e)}
-  if(!d.registered||d.status!=='承認済み')return shell('依頼する','<div class="warnbox">ご依頼は、パートナー登録の承認後にご利用いただけます。</div>');
+  if(!d.registered||d.status!=='承認済み')return shell('依頼する',notReady(d,'ご依頼'));
   const job=d.types.indexOf('求人')>=0,ad=d.types.indexOf('広告')>=0;
   if(!job)return c07();
   if(ad&&C.q.get('type')!=='job')return shell('依頼する',`<p class="note">依頼の種類を選んでください。</p>
@@ -328,7 +336,8 @@ async function c02(){
 async function c07(){
   const T='広告依頼';loading(T);
   let d;try{d=await call('getClient')}catch(e){return fail(T,e)}
-  if(!d.registered||d.status!=='承認済み'||d.types.indexOf('広告')<0)return shell(T,'<div class="warnbox">広告のご依頼は、広告のパートナー登録が承認されてからご利用いただけます。</div>'+(d.registered?`<a class="btn-sub" href="${esc(url('c01',{type:'ad'}))}">広告でも利用する</a>`:''));
+  if(!d.registered||d.status!=='承認済み')return shell(T,notReady(d,'広告のご依頼','ad'));
+  if(d.types.indexOf('広告')<0)return shell(T,`<div class="warnbox">広告のご依頼は、広告でのご利用を追加するとお使いいただけます。</div><a class="btn-main linkbtn" href="${esc(url('c01',{type:'ad'}))}">広告でも利用する</a>`);
   const editId=C.q.get('edit');let a={};
   if(editId){try{a=await call('myAd',{adId:editId})}catch(e){return fail(T,e)}}
   const today=ymd(new Date()),kind=a.adType||AD_TYPES[0];
