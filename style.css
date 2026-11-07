@@ -153,3 +153,9 @@ body[data-app="user"] .liff{width:calc(100% - 24px);margin:12px auto 32px;border
 .punch-btn:disabled{background:var(--line);color:var(--muted);box-shadow:none}
 .today-none{display:flex;flex-direction:column;gap:4px}
 h3.jtitle{font-size:16px}
+
+/* ---------- 日付・時刻の入力欄がはみ出さないように（iPhone は日付欄に既定の幅があるため） ---------- */
+.fld{min-width:0}
+.grid2>*,.grid3>*{min-width:0}
+.fld input[type=date],.fld input[type=time],.fld input[type=datetime-local]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;text-align:left}
+.fld input::-webkit-date-and-time-value{text-align:left}
