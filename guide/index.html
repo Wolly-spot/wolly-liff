@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wollyの始め方</title>
+<meta name="description" content="Wolly のお仕事配信サービスの始め方。マイページ登録からエントリー、当日のルール、お給料まで。">
+<meta name="theme-color" content="#7A6350">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ink:#3A332D;--muted:#7A7168;--green:#7A6350;--green-dk:#4F4034;--leaf:#F2ECE4;--leaf2:#E0D3C3;
+  --orange:#C29545;--orange-dk:#A0772C;--orange-weak:#F6EEDC;--red:#B5803A;--red-weak:#F6ECDB;
+  --cream:#FAF6F0;--paper:#FFFFFF;--sand:#F1EBE2;--line:#E6DDD0;--yellow:#F0DFB0;
+  --blue:#6F8CAB;--blue-w:#E8EEF5;--sage:#879C7F;--sage-w:#ECF1E8;--lav:#8E86B5;--lav-w:#EEECF6;--mus:#C29545;--mus-w:#F6EEDC;
+  --r:20px;--shadow:0 6px 18px rgba(79,64,52,.08);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:62px}
+body{margin:0;background:#EAE3D9;color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-size:15.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+h1,h2,h3,.maru{font-family:"Zen Maru Gothic","Zen Kaku Gothic New",sans-serif}
+a{color:var(--green)}
+a,button,summary{-webkit-tap-highlight-color:transparent}
+img{max-width:100%;height:auto;display:block}
+p,h1,h2,h3,b,span,li{word-break:auto-phrase;overflow-wrap:anywhere}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:8px}
+.wrap{max-width:560px;margin:0 auto;background:var(--cream);min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,.06)}
+
+/* ヒーロー */
+.hero{position:relative}
+.hero img{width:100%}
+.hello{margin:12px 14px 0;position:relative;z-index:1;background:var(--paper);border-radius:var(--r);padding:16px 16px 14px;box-shadow:var(--shadow);text-align:center}
+.hello h1{margin:0;font-size:20px;color:var(--green-dk);line-height:1.45}
+.hello p{margin:4px 0 0;font-size:13.5px;color:var(--muted)}
+
+main{padding:0 14px 36px}
+
+/* よく使うボタン */
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.qbtn{display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 4px 10px;box-shadow:var(--shadow);font-weight:700;font-size:12.5px;line-height:1.3;text-align:center;min-height:96px;transition:transform .12s}
+.qbtn:active{transform:scale(.96)}
+.qbtn .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--leaf);color:var(--green)}
+.qbtn.hot .ic{background:var(--green);color:#fff}
+.qbtn.sos .ic{background:var(--red-weak);color:var(--red)}
+.qbtn svg{width:24px;height:24px}
+.qbtn small{display:block;font-weight:500;font-size:10.5px;color:var(--muted)}
+
+/* 目次（上に固定） */
+.toc{position:sticky;top:0;z-index:8;display:flex;gap:8px;overflow-x:auto;margin:16px -14px 0;padding:10px 14px;background:rgba(250,246,240,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{flex:none;text-decoration:none;color:var(--green-dk);background:var(--leaf);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:700;transition:background .2s,color .2s}
+.toc a.on{background:var(--green);color:#fff}
+
+/* パートの見出し（前半・後半） */
+.part{margin:34px -14px 0;padding:20px 18px 18px;background:var(--green);color:#fff;text-align:center;position:relative}
+.part::after{content:"";position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);border:12px solid transparent;border-bottom:0;border-top-color:var(--green)}
+.part small{display:inline-block;font-family:"Zen Maru Gothic",sans-serif;font-weight:900;letter-spacing:.18em;font-size:12px;background:rgba(255,255,255,.18);border-radius:999px;padding:2px 12px}
+.part h2{margin:6px 0 0;font-size:23px;line-height:1.4}
+.part p{margin:4px 0 0;font-size:13px;opacity:.9}
+.part.orange{background:var(--orange)}
+.part.orange::after{border-top-color:var(--orange)}
+
+/* セクション見出し */
+.sec{padding-top:32px}
+.sec-head{text-align:center;margin-bottom:16px}
+.sec-head h2{margin:0;font-size:22px;color:var(--ink);line-height:1.4}
+.sec-head h2 em{font-style:normal;color:var(--orange)}
+.sec-head p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.sec-head::after{content:"";display:block;width:56px;height:4px;border-radius:4px;background:var(--leaf2);margin:10px auto 0}
+
+/* 絵（Canvaのイラスト） */
+.pic{border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);background:#fff}
+.pic+.pic{margin-top:12px}
+.bleed{margin:0 -14px;border-radius:0;box-shadow:none}
+
+/* 登録の呼びかけ */
+.cta{display:grid;grid-template-columns:1fr 112px;align-items:center;gap:4px;background:linear-gradient(160deg,#fff 30%,var(--leaf) 100%);border:2px solid var(--leaf2);border-radius:24px;padding:18px 10px 0 16px;margin-top:18px;overflow:hidden}
+.cta h3{margin:0;font-size:19px;color:var(--green-dk);line-height:1.45}
+.cta h3 b{font-size:34px;color:var(--orange);font-weight:900}
+.cta p{margin:6px 0 14px;font-size:13px;color:var(--muted)}
+.cta img{width:112px;align-self:end;mix-blend-mode:multiply}
+.imgbtn{display:block;margin:14px 4px 6px}
+.imgbtn:active{transform:scale(.97)}
+
+/* 6ステップ */
+.steps{list-style:none;margin:16px 0 0;padding:0}
+.step{display:grid;grid-template-columns:38px 1fr;gap:10px;position:relative;padding-bottom:16px}
+.step:not(:last-child)::before{content:"";position:absolute;left:17.5px;top:40px;bottom:2px;width:3px;background:repeating-linear-gradient(to bottom,var(--leaf2) 0 7px,transparent 7px 12px)}
+.dot{width:38px;height:38px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-family:"Zen Maru Gothic",sans-serif;font-weight:900;font-size:18px}
+.sbody{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+.sbody h3{margin:0;font-size:17.5px;line-height:1.4}
+.sbody h3 em{font-style:normal;color:var(--green)}
+.sbody p{margin:4px 0 0;font-size:13.5px;color:var(--muted)}
+.sbody .thumb{border-radius:12px;margin-top:10px;width:100%;aspect-ratio:400/170;object-fit:cover}
+.step.key .dot{background:var(--orange);transform:scale(1.12)}
+.step.key .sbody{border:2.5px solid var(--orange);box-shadow:0 10px 24px rgba(194,149,69,.18)}
+.pt{display:inline-block;background:var(--orange);color:#fff;font-family:"Zen Maru Gothic",sans-serif;font-weight:900;font-size:11px;letter-spacing:.14em;border-radius:6px;padding:1px 8px;margin-bottom:4px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tags span{font-size:12px;font-weight:700;color:var(--green-dk);background:var(--leaf);border-radius:999px;padding:2px 10px}
+
+/* 求人カードの絵（エントリーボタン） */
+.mock{margin:12px auto 2px;max-width:260px;background:#F3F4F9;border-radius:16px;padding:10px;border:1px solid #DDE0EA}
+.mock .job{background:#fff;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.55;color:#1D2033}
+.mock .job b{font-size:13.5px;display:block}
+.mock .job span{color:#555A70}
+.mock .eb{display:block;margin-top:8px;text-align:center;background:#4652C8;color:#fff;border-radius:10px;padding:9px 0;font-weight:700;font-size:13px;animation:pulse 1.8s infinite}
+.mock .eb.in{background:#1A7550}
+.mock .eb.out{background:#C9CCD8;animation:none;margin-top:6px}
+.tapme{display:block;text-align:center;font-size:11.5px;color:var(--orange-dk);font-weight:700;margin-top:6px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(70,82,200,.45)}70%{box-shadow:0 0 0 12px rgba(70,82,200,0)}100%{box-shadow:0 0 0 0 rgba(70,82,200,0)}}
+
+/* ボタン */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;border-radius:16px;background:var(--green);color:#fff;text-decoration:none;font-weight:700;font-size:15.5px;box-shadow:0 4px 0 var(--green-dk);margin-top:14px;transition:transform .1s,box-shadow .1s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--green-dk)}
+.btn.orange{background:var(--orange);box-shadow:0 4px 0 var(--orange-dk)}
+.btn.red{background:var(--red);box-shadow:0 4px 0 #8A6220}
+.btn.ghost{background:#fff;color:var(--green);border:2px solid var(--green);box-shadow:none}
+.btn svg{width:20px;height:20px}
+
+/* POINT／RULE カード */
+.point{position:relative;background:var(--paper);border:2.5px solid var(--green);border-radius:24px;padding:28px 16px 18px;box-shadow:0 12px 28px rgba(122,99,80,.14);text-align:center;margin-top:28px}
+.point .ribbon{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-family:"Zen Maru Gothic",sans-serif;font-weight:900;font-size:12.5px;letter-spacing:.14em;padding:4px 16px;border-radius:999px;white-space:nowrap}
+.point .big-ic{width:80px;height:80px;margin:0 auto 10px;border-radius:26px;display:grid;place-items:center;background:var(--leaf);color:var(--green)}
+.point .big-ic svg{width:46px;height:46px}
+.point h3{margin:0 0 8px;font-size:21px;line-height:1.4}
+.point p{margin:0;text-align:left;font-size:14.5px}
+.point.red{border-color:var(--red);box-shadow:0 12px 28px rgba(217,68,58,.14)}
+.point.red .ribbon{background:var(--red)}
+.point.red .big-ic{background:var(--red-weak);color:var(--red)}
+.point.orange{border-color:var(--orange);box-shadow:0 12px 28px rgba(194,149,69,.16)}
+.point.orange .ribbon{background:var(--orange)}
+.two{display:grid;gap:8px;margin-top:12px;text-align:left}
+.two div{background:var(--sand);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.6}
+.two b{display:block;color:var(--green-dk);font-size:13.5px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-top:14px}
+.card h3{margin:0 0 6px;font-size:16.5px;display:flex;align-items:center;gap:8px}
+.card h3 svg{width:22px;height:22px;color:var(--orange);flex:none}
+.card p{margin:0;font-size:14px}
+.mini{display:flex;gap:10px;align-items:flex-start;background:var(--sand);border-radius:16px;padding:12px 14px;margin-top:12px;font-size:13px;line-height:1.65;color:var(--muted)}
+.mini svg{flex:none;width:20px;height:20px;color:var(--green-dk);margin-top:2px}
+.mini b{color:var(--ink)}
+mark{background:linear-gradient(transparent 58%,var(--yellow) 58%);color:inherit;font-weight:700;padding:0 1px}
+
+/* お給料 */
+.payday .lbl{font-weight:700;color:var(--muted);font-size:13px}
+.payday .d{font-family:"Zen Maru Gothic",sans-serif;font-weight:900;color:var(--orange);font-size:66px;line-height:1.05;letter-spacing:-.02em}
+.payday .d small{font-size:22px;color:var(--ink);margin-right:4px}
+.payday .d span{font-size:26px}
+.flow{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px}
+.cal{width:92px;border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--line);text-align:center}
+.cal i{display:block;font-style:normal;background:var(--green);color:#fff;font-size:11.5px;font-weight:700;padding:3px 0}
+.cal b{display:block;font-family:"Zen Maru Gothic",sans-serif;font-size:18px;padding:6px 0 4px;line-height:1.25}
+.cal b small{display:block;font-size:10.5px;color:var(--muted);font-weight:500}
+.cal.goal i{background:var(--orange)}
+.arrow{color:var(--orange);font-size:22px;font-weight:900}
+
+/* よくある質問 */
+details{background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+details+details{margin-top:10px}
+summary{list-style:none;cursor:pointer;padding:14px 42px 14px 14px;position:relative;font-weight:700;display:flex;gap:10px;align-items:flex-start;line-height:1.5}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"Q";flex:none;width:26px;height:26px;border-radius:8px;background:var(--green);color:#fff;display:grid;place-items:center;font-family:"Zen Maru Gothic",sans-serif;font-size:14px}
+summary::after{content:"";position:absolute;right:18px;top:21px;width:9px;height:9px;border-right:2.5px solid var(--green);border-bottom:2.5px solid var(--green);transform:rotate(45deg);transition:transform .2s}
+details[open] summary::after{transform:rotate(-135deg);top:25px}
+details .a{padding:0 16px 16px;font-size:14px}
+details .a p{margin:0}
+details .a p+p{margin-top:6px}
+
+/* スタッフ */
+.person{display:grid;grid-template-columns:52px 1fr;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+.person+.person{margin-top:10px}
+.avatar{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-family:"Zen Maru Gothic",sans-serif;font-weight:900;font-size:20px;color:#fff}
+.person .role{display:inline-block;font-size:11px;font-weight:700;color:var(--green-dk);background:var(--leaf);border-radius:6px;padding:1px 8px}
+.person b{display:block;font-family:"Zen Maru Gothic",sans-serif;font-size:17px;line-height:1.4;margin-top:2px}
+.person p{margin:4px 0 0;font-size:13.5px}
+
+/* 最後 */
+.ready{background:linear-gradient(160deg,#fff 0%,var(--leaf) 100%);border:2px solid var(--leaf2);border-radius:24px;padding:22px 16px;text-align:center;margin-top:32px}
+.ready h2{margin:0;font-size:22px;line-height:1.45}
+.ready h2 em{font-style:normal;color:var(--orange)}
+.ready ol{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px;text-align:left}
+.ready li{background:#fff;border-radius:14px;padding:10px 12px;font-size:14px;font-weight:700;display:flex;gap:10px;align-items:center;border:1px solid var(--line)}
+.ready li span{flex:none;width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:12px}
+
+footer{background:var(--green-dk);color:#E9EEF4;padding:26px 16px calc(40px + env(safe-area-inset-bottom));font-size:12.5px;text-align:center}
+footer a{color:#fff}
+footer .hours{display:inline-block;text-align:left;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 14px;margin:8px 0 14px;line-height:1.7}
+footer .links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+.top{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s;text-decoration:none;z-index:10}
+.top.show{opacity:1;pointer-events:auto}
+.top svg{width:22px;height:22px}
+
+/* タップできる所：押すとふわっと沈み、離すとやわらかく戻る */
+.qbtn,.btn,.imgbtn,.toc a,summary,.top{transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,background-color .2s,filter .3s;will-change:transform}
+.qbtn:active,.btn:active,.toc a:active,.top:active{transform:scale(.94);transition-duration:.12s}
+.btn:active{box-shadow:0 1px 0 rgba(0,0,0,.15)}
+summary:active{transform:scale(.98);transition-duration:.12s}
+.qbtn:active{box-shadow:0 0 0 6px rgba(122,99,80,.12)}
+@media (hover:hover){
+  .qbtn:hover,.btn:hover{transform:translateY(-3px);box-shadow:0 12px 22px rgba(79,64,52,.14)}
+  .toc a:hover{transform:translateY(-2px)}
+  summary:hover{background:#FAF8F4}
+}
+/* マイページ登録はこちら：ふわふわ浮かぶ */
+.imgbtn{animation:fuwa 2.8s ease-in-out infinite}
+.imgbtn img{animation:glow 2.8s ease-in-out infinite}
+.imgbtn:active{animation-play-state:paused;transform:scale(.95)}
+@keyframes fuwa{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.025)}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 4px 4px rgba(122,99,80,.15))}50%{filter:drop-shadow(0 12px 10px rgba(122,99,80,.28))}}
+/* ===== おしゃれ：飾りは細い線と英字で控えめに ===== */
+h1,h2,h3,.maru{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;letter-spacing:.04em}
+.en{font-family:"Montserrat",sans-serif;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
+.hello h1{color:var(--green);font-size:19px}
+.hello h1::before{content:"WELCOME";display:block;font-family:"Montserrat",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.3em;color:var(--orange);margin-bottom:2px}
+/* 帯：ネイビーに細い金の線 */
+.part{padding:26px 18px 24px;box-shadow:inset 0 0 0 6px var(--green),inset 0 0 0 7px rgba(194,149,69,.55)}
+.part::after{display:none}
+.part small{font-family:"Montserrat",sans-serif;font-weight:600;letter-spacing:.32em;background:none;color:#D9B867;padding:0;font-size:11px}
+.part h2{font-size:22px;letter-spacing:.08em}
+.part p{font-size:12.5px;opacity:.8;letter-spacing:.04em}
+/* 見出し：英字の小見出し＋金の細線 */
+.sec-head::before{content:attr(data-en);display:block;font-family:"Montserrat",sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
+.sec-head h2{font-size:21px;letter-spacing:.06em}
+.sec-head h2 em{color:var(--orange)}
+.sec-head::after{width:28px;height:1.5px;background:var(--orange);margin-top:12px}
+/* 形：角を少し控えめに、影はうすく */
+.btn{border-radius:12px;box-shadow:0 6px 16px rgba(79,64,52,.18);letter-spacing:.06em}
+.btn:active{box-shadow:0 2px 6px rgba(79,64,52,.2)}
+.btn.orange{box-shadow:0 6px 16px rgba(194,149,69,.25)}
+.btn.red{box-shadow:0 6px 16px rgba(176,125,42,.25)}
+.btn.ghost{box-shadow:none;border-width:1.5px}
+.qbtn{border-radius:14px;box-shadow:none}
+.qbtn .ic{border-radius:50%;background:var(--leaf)}
+.qbtn.hot .ic{background:var(--green)}
+.qbtn.sos .ic{background:var(--red-weak);color:var(--red)}
+.point{border-width:1.5px;border-radius:18px}
+.point .ribbon{border-radius:4px;font-family:"Montserrat",sans-serif;font-weight:600;letter-spacing:.24em;font-size:11px}
+.point .big-ic{border-radius:50%;width:72px;height:72px}
+.point .big-ic svg{width:38px;height:38px}
+.pt{border-radius:4px;font-family:"Montserrat",sans-serif;font-weight:600;letter-spacing:.2em}
+.step.key .sbody{border-width:1.5px}
+.dot{font-family:"Montserrat",sans-serif;font-weight:600;font-size:15px}
+.sbody,.card,details,.person,.chk{box-shadow:0 2px 10px rgba(79,64,52,.05)}
+.toc a{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.toc a.on{background:var(--green);border-color:var(--green);color:#fff}
+.ready{background:var(--paper);border:1px solid var(--line)}
+.ready li span{font-family:"Montserrat",sans-serif;font-weight:600}
+.payday .d{font-family:"Montserrat",sans-serif;font-weight:500;color:var(--orange)}
+.payday .d small,.payday .d span{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700}
+.cta{border:1px solid var(--line);background:linear-gradient(160deg,#fff 40%,var(--blue-w) 100%)}
+.cta h3{color:var(--green)}
+.cta h3 b{font-family:"Montserrat",sans-serif;font-weight:600}
+footer{background:var(--green-dk)}
+footer .hours{background:rgba(255,255,255,.07)}
+/* ===== ベージュを土台に、くすみ色（ブルー・セージ・マスタード・ラベンダー）を少しずつ使い分ける ===== */
+/* 帯：PART 1 はブルー、PART 2 はセージ。内側に白の細線 */
+.part{background:var(--blue);box-shadow:inset 0 0 0 6px var(--blue),inset 0 0 0 7px rgba(255,255,255,.45)}
+.part small{color:#F3E3BC}
+.part.orange{background:var(--sage);box-shadow:inset 0 0 0 6px var(--sage),inset 0 0 0 7px rgba(255,255,255,.45)}
+/* よく使うボタン：アイコンの色を1つずつ変える */
+.qbtn:nth-child(2) .ic{background:var(--blue-w);color:var(--blue)}
+.qbtn:nth-child(3) .ic{background:var(--sage-w);color:var(--sage)}
+.qbtn:nth-child(4) .ic{background:var(--mus-w);color:var(--mus)}
+.qbtn:nth-child(5) .ic{background:var(--lav-w);color:var(--lav)}
+/* 見出しの英字と細線：セクションごとに色を変える */
+#rules .sec-head::before,#rules .sec-head h2 em{color:var(--blue)}
+#rules .sec-head::after{background:var(--blue)}
+#pay .sec-head::before{color:var(--mus)}
+#faq .sec-head::before{color:var(--lav)}
+#faq .sec-head::after{background:var(--lav)}
+/* 6ステップの番号：色を順に */
+.step:nth-child(1) .dot{background:var(--blue)}
+.step:nth-child(2) .dot{background:var(--sage)}
+.step:nth-child(3) .dot{background:var(--lav)}
+.step:nth-child(5) .dot{background:var(--blue)}
+.step:not(:last-child)::before{background:repeating-linear-gradient(to bottom,var(--leaf2) 0 7px,transparent 7px 12px)}
+.tags span:nth-child(3n+1){background:var(--blue-w);color:#4E6884}
+.tags span:nth-child(3n+2){background:var(--sage-w);color:#5E7357}
+.tags span:nth-child(3n){background:var(--lav-w);color:#655D8C}
+/* RULE 1 はブルー */
+#rules .point:not(.red){border-color:var(--blue);box-shadow:0 12px 28px rgba(111,140,171,.16)}
+#rules .point:not(.red) .ribbon{background:var(--blue)}
+#rules .point:not(.red) .big-ic{background:var(--blue-w);color:var(--blue)}
+#rules .point:not(.red) .btn{background:var(--blue);box-shadow:0 6px 16px rgba(111,140,171,.3)}
+#rules .two b{color:#4E6884}
+/* お給料のカレンダー */
+.cal i{background:var(--sage)}
+/* よくある質問：Q の色を順に */
+details:nth-of-type(4n+1) summary::before{background:var(--blue)}
+details:nth-of-type(4n+2) summary::before{background:var(--sage)}
+details:nth-of-type(4n+3) summary::before{background:var(--lav)}
+details:nth-of-type(4n) summary::before{background:var(--mus)}
+summary::after{border-color:var(--leaf2)}
+/* 最後のチェックリスト：番号の色を順に */
+.ready li:nth-child(1) span{background:var(--blue)}
+.ready li:nth-child(2) span{background:var(--sage)}
+.ready li:nth-child(3) span{background:var(--lav)}
+.ready li:nth-child(4) span{background:var(--mus)}
+.ready li:nth-child(5) span{background:var(--blue)}
+.btn.sm{min-height:44px;font-size:14px;margin-top:12px}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
+@media (min-width:481px){main{padding:0 20px 40px}.toc,.part{margin-left:-20px;margin-right:-20px}.bleed{margin:0 -20px}}
+@media (max-width:340px){.quick{grid-template-columns:repeat(2,1fr)}.cta{grid-template-columns:1fr 84px}.cta img{width:84px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></symbol>
+    <symbol id="i-sos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    <symbol id="i-yen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 4 5 7 5-7M12 11v9M8 13h8M8 16.5h8"/></symbol>
+    <symbol id="i-people" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c2.9.3 5 2.6 5 5.8"/></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 6-6 6 6"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+
+<header class="hero" id="top">
+  <img src="../img/guide/hero.jpg" width="900" height="561" alt="Wollyのお仕事配信サービスとは？ 仕事探しを、もっとカンタンに。もっと自由に。">
+  <div class="hello">
+    <h1>Wolly へようこそ！</h1>
+    <p>ご登録ありがとうございます。<br>はじめ方から当日のルールまで、ここでご案内します。</p>
+  </div>
+</header>
+
+<main>
+
+  <nav class="quick" aria-label="よく使うメニュー">
+    <a class="qbtn hot" data-link="u00" href="#"><span class="ic"><svg><use href="#i-user"/></svg></span>マイページ<small>登録・変更</small></a>
+    <a class="qbtn" href="#steps"><span class="ic"><svg><use href="#i-search"/></svg></span>はじめ方<small>6ステップ</small></a>
+    <a class="qbtn" data-link="u05" href="#"><span class="ic"><svg><use href="#i-clock"/></svg></span>応募状況<small>出退勤</small></a>
+    <a class="qbtn" data-link="navi" href="#"><span class="ic"><svg><use href="#i-ticket"/></svg></span>街ナビ<small>クーポン</small></a>
+    <a class="qbtn" data-link="ask" href="#"><span class="ic"><svg><use href="#i-chat"/></svg></span>質問する<small>LINEで相談</small></a>
+    <a class="qbtn sos" data-link="sos" href="#"><span class="ic"><svg><use href="#i-sos"/></svg></span>緊急連絡<small>遅刻・急な欠勤</small></a>
+  </nav>
+
+  <nav class="toc" aria-label="このページの目次">
+    <a href="#anshin">Wollyって？</a>
+    <a href="#steps">6ステップ</a>
+    <a href="#style">働き方</a>
+    <a href="#jobs">お仕事</a>
+    <a href="#rules">当日のルール</a>
+    <a href="#pay">お給料</a>
+    <a href="#faq">Q&amp;A</a>
+  </nav>
+
+  <!-- ===== PART 1 ===== -->
+  <div class="part">
+    <small>PART 1</small>
+    <h2>はじめての方へ</h2>
+    <p>Wolly のことと、お仕事が決まるまで</p>
+  </div>
+
+  <section class="sec reveal" id="anshin">
+    <img class="pic bleed" src="../img/guide/anshin.jpg" width="887" height="1774" loading="lazy"
+      alt="安心してご利用いただくために。職場には一度伺って、お仕事の内容や人材の不足状況などを確認しています。地域のお仕事のみ配信。ご自身で応募を選べます。シフト制ではありません。働きたい時だけ応募OK。LINEだけで完結。">
+
+    <div class="cta">
+      <div>
+        <h3>まずはマイページ登録<br><b>1</b>分ほどで完了！</h3>
+        <p>名前・連絡先・希望するお仕事などを入れるだけ。</p>
+      </div>
+      <img src="../img/guide/woman.jpg" width="318" height="820" alt="" loading="lazy">
+    </div>
+    <a class="imgbtn" data-link="u00" href="#"><img src="../img/guide/btn-mypage.png" width="900" height="255" alt="マイページ登録はこちら！" loading="lazy"></a>
+  </section>
+
+  <section class="sec reveal" id="steps">
+    <img class="pic" src="../img/guide/steps-head.jpg" width="900" height="381" loading="lazy" alt="ご利用はとても簡単！たった6ステップでお仕事が決まります！">
+    <ol class="steps">
+      <li class="step"><span class="dot">1</span><div class="sbody">
+        <h3><em>LINE</em>とマイページに登録</h3>
+        <p>Wolly のLINEを友だち追加して、マイページを登録します（1分ほど）。</p>
+        <img class="thumb" src="../img/guide/st1.jpg" width="400" height="170" alt="" loading="lazy">
+      </div></li>
+      <li class="step"><span class="dot">2</span><div class="sbody">
+        <h3><em>アンケート</em>に答える</h3>
+        <p>登録が終わると、アンケートの画面が出ます。<mark>やってみたいお仕事のジャンル</mark>をタップして答えてください。あなたに合ったお仕事探しに使います。</p>
+        <div class="tags"><span>保育・保育補助</span><span>美容師</span><span>トリマー・動物ケア</span><span>清掃</span><span>イベント</span><span>スーパー・コンビニ</span><span>地域のショップ</span><span>リモート</span></div>
+        <a class="btn ghost sm" data-link="survey" href="#"><svg><use href="#i-chat"/></svg>アンケートに答える</a>
+      </div></li>
+      <li class="step"><span class="dot">3</span><div class="sbody">
+        <h3>お仕事が<em>LINE</em>に届く</h3>
+        <p>新しいお仕事は、毎朝10時ごろLINEでお知らせします。エントリーの前に、ここを確かめましょう。</p>
+        <div class="tags"><span>勤務時間</span><span>場所</span><span>時給・交通費</span><span>仕事内容</span><span>服装・持ち物</span><span>応募締切</span></div>
+        <img class="thumb" src="../img/guide/st2.jpg" width="400" height="170" alt="" loading="lazy">
+      </div></li>
+      <li class="step key"><span class="dot">4</span><div class="sbody">
+        <span class="pt">POINT</span>
+        <h3>「エントリーする」を押すだけ</h3>
+        <p>登録した内容で申し込むので、<mark>確認して押すだけ。</mark>お仕事先へのひとこと（任意）も添えられます。</p>
+        <div class="mock" aria-hidden="true"><div class="job"><b>カフェスタッフ</b><span>6/5（木）10:00〜14:00<br>さいたま市大宮区　時給1,200円</span></div><span class="eb">エントリーする</span></div>
+        <span class="tapme">↑ 求人のこのボタンをタップ</span>
+      </div></li>
+      <li class="step"><span class="dot">5</span><div class="sbody">
+        <h3>お仕事<em>決定</em>！</h3>
+        <p>結果はLINEでお知らせします。お店やお仕事の動画が届いたら、<mark>必ず見ておきましょう。</mark></p>
+        <img class="thumb" src="../img/guide/st5.jpg" width="400" height="168" alt="" loading="lazy">
+      </div></li>
+      <li class="step key"><span class="dot">6</span><div class="sbody">
+        <span class="pt">POINT</span>
+        <h3>当日、着いたら「チェックイン」</h3>
+        <p>「応募状況・出退勤」の画面の大きなボタンを押します。終わったら「チェックアウト」。</p>
+        <div class="mock" aria-hidden="true"><div class="job"><b>今日のお仕事</b><span>10:00〜14:00　カフェスタッフ</span></div><span class="eb in">チェックイン（出勤）</span><span class="eb out">チェックアウト（退勤）</span></div>
+        <img class="thumb" src="../img/guide/st6.jpg" width="400" height="175" alt="" loading="lazy">
+      </div></li>
+    </ol>
+  </section>
+
+  <section class="sec reveal" id="style">
+    <img class="pic bleed" src="../img/guide/hatarakikata.jpg" width="862" height="1478" loading="lazy"
+      alt="働き方は自由に選択できます！1〜3時間程度の短時間勤務。午前のみ、午後のみ、1日勤務、空いた時間だけ、副業OK、子育て中でも働きやすい案件多数。">
+  </section>
+
+  <section class="sec reveal" id="jobs">
+    <img class="pic bleed" src="../img/guide/shigoto.jpg" width="864" height="1821" loading="lazy"
+      alt="こんなお仕事があります。美容師アシスタント、美容師スタイリスト（面貸し仲介）、保育士、トリマー、動物病院清掃スタッフ、地域ショップのお手伝い、イベントスタッフ、受付・軽作業、その他地域のお仕事。新しいお仕事に関しては、お知らせとしてチャットにお知らせいたします！">
+  </section>
+
+  <!-- ===== PART 2 ===== -->
+  <div class="part orange" style="margin-top:40px">
+    <small>PART 2</small>
+    <h2>お仕事が決まったら</h2>
+    <p>安心して働くために、必ず読んでください</p>
+  </div>
+
+  <section class="sec reveal" id="rules">
+    <div class="sec-head" data-en="RULES"><h2>当日の<em>大切なルール</em></h2></div>
+
+    <div class="point">
+      <span class="ribbon">RULE 1</span>
+      <span class="big-ic"><svg><use href="#i-clock"/></svg></span>
+      <h3>出勤・退勤の連絡を<br>忘れずに！</h3>
+      <p>着いたら「チェックイン」、終わったら「チェックアウト」。どちらかの方法で記録できます。</p>
+      <div class="two">
+        <div><b>① 画面のボタン</b>「応募状況・出退勤」を開いて、大きなボタンを押す</div>
+        <div><b>② リッチメニュー</b>「Check-In / Check-Out」から「出勤します」「退勤します」をそのまま送る</div>
+      </div>
+      <a class="btn" data-link="u05" href="#"><svg><use href="#i-clock"/></svg>応募状況・出退勤を開く</a>
+    </div>
+
+    <div class="point red">
+      <span class="ribbon">RULE 2</span>
+      <span class="big-ic"><svg><use href="#i-sos"/></svg></span>
+      <h3>遅れそうなときは<br>すぐに「緊急連絡」</h3>
+      <p>遅刻しそう・体調が悪いなど、当日のトラブルはすぐに Wolly へ。いつごろ着けそうかなど、できるだけ詳しく教えてください。</p>
+      <a class="btn red" data-link="sos" href="#"><svg><use href="#i-sos"/></svg>緊急連絡を送る</a>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <h3><svg><use href="#i-people"/></svg>決まったお仕事のキャンセル</h3>
+      <p>お仕事先はあなたを待っています。決まったあとのキャンセルは<mark>できるだけ避けてください。</mark>どうしても行けなくなったら、すぐに Wolly のトークでご連絡ください。お仕事先への連絡は Wolly が行います。</p>
+    </div>
+
+    <div class="mini">
+      <svg><use href="#i-user"/></svg>
+      <div><b>18歳未満の方へ</b>　マイページ登録のときに保護者の同意が必要です。中学生はエントリーできません。「18歳以上」のお仕事と、夜22時〜朝5時にかかるお仕事も、18歳未満の方はエントリーできません。</div>
+    </div>
+  </section>
+
+  <section class="sec reveal" id="pay">
+    <div class="sec-head" data-en="SALARY"><h2>お給料について</h2><p>がんばった分は、しっかりお支払いします</p></div>
+    <div class="point orange" style="margin-top:20px">
+      <span class="ribbon">POINT</span>
+      <div class="payday">
+        <div class="lbl">その月に働いた分は</div>
+        <div class="d"><small>翌月</small>5<span>日</span></div>
+        <div class="lbl">にまとめてお支払い</div>
+      </div>
+      <div class="flow">
+        <div class="cal"><i>今月</i><b>お仕事<small>月末で締め</small></b></div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="cal goal"><i>翌月</i><b>5日<small>お支払い</small></b></div>
+      </div>
+    </div>
+    <div class="mini">
+      <svg><use href="#i-yen"/></svg>
+      <div><b>振込手数料</b>　PayPay銀行は無料です。そのほかの銀行は、振込手数料を差し引いてお振り込みします。</div>
+    </div>
+  </section>
+
+  <section class="sec reveal" id="faq">
+    <div class="sec-head" data-en="Q &amp; A"><h2>よくある質問</h2></div>
+    <details>
+      <summary>子どもが急に熱を出したら？</summary>
+      <div class="a"><p>わかった時点で、すぐに Wolly へご連絡ください。お仕事先への連絡は Wolly が行います。</p><p>当日のキャンセルはお仕事先の負担が大きいので、日ごろから無理のない予定でエントリーしましょう。</p></div>
+    </details>
+    <details>
+      <summary>はじめてのお店でも大丈夫？</summary>
+      <div class="a"><p><b>はい、大丈夫です！</b> はじめての方もたくさん活躍しています。わからないことは、その場で遠慮なく聞いてください。動画があるお仕事は、事前に見ておくと安心です。</p></div>
+    </details>
+    <details>
+      <summary>エントリーしたお仕事を取り消せる？</summary>
+      <div class="a"><p>Wolly のトークでご連絡ください。決まったあとの取り消しは、お仕事先にご迷惑がかかるので、できるだけ避けてください。</p></div>
+    </details>
+    <details>
+      <summary>月に何回働かないといけないの？</summary>
+      <div class="a"><p><b>決まりはありません！</b> シフト制ではないので、働きたい日のお仕事を、好きなときに選べます。</p></div>
+    </details>
+    <details>
+      <summary>登録した内容を変えたいときは？</summary>
+      <div class="a"><p>マイページを開くと、登録した内容を確認・変更できます。住所や電話番号が変わったら、早めに変更してください。</p></div>
+    </details>
+  </section>
+
+  <section class="sec reveal">
+    <div class="card" style="background:linear-gradient(150deg,#fff 40%,var(--sage-w) 100%)">
+      <h3><svg><use href="#i-ticket"/></svg>街ナビ・クーポンも使ってね</h3>
+      <p>さいたま市の習い事をくらべたり、地元のお店のメンバー限定クーポンを使えます。行ったお店にスタンプで口コミもできます。</p>
+      <a class="btn" data-link="navi" href="#"><svg><use href="#i-map"/></svg>街ナビ・クーポンを見る</a>
+    </div>
+
+    <div class="ready">
+      <h2>これで準備完了！<br><em>Wolly のお仕事スタート</em></h2>
+      <ol>
+        <li><span>1</span>マイページを登録</li>
+        <li><span>2</span>アンケートでやってみたいお仕事を回答</li>
+        <li><span>3</span>届いたお仕事にエントリー</li>
+        <li><span>4</span>出勤・退勤の連絡を忘れずに</li>
+        <li><span>5</span>困ったら Wolly へ</li>
+      </ol>
+      <a class="btn orange" data-link="u00" href="#"><svg><use href="#i-user"/></svg>マイページを登録する</a>
+      <a class="btn ghost" data-link="share" href="#"><svg><use href="#i-share"/></svg>お友だちに Wolly をシェア</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="maru" style="font-size:15px;font-weight:700;color:#fff">Wolly spot</div>
+  <div class="hours">お問い合わせの受付時間<br>月〜土　9:00〜16:00／20:00〜23:00<br>（日曜日はお休みです）</div>
+  <div class="links" id="legal"></div>
+</footer>
+
+</div>
+
+<a class="top" id="toTop" href="#top" aria-label="ページの先頭へ"><svg><use href="#i-up"/></svg></a>
+
+<script>
+/* リンク先（ここだけ書き換えればページ全体に反映されます） */
+var OA = '@908wrcaq';                                   // メンバー用LINE公式アカウント（Wolly）
+var LIFF = 'https://liff.line.me/2007823365-RNfPYqlv'; // メンバー用LIFF
+var LINKS = {
+  u01: LIFF + '?page=u01',   // 求人一覧（Worklist）
+  u00: LIFF + '?page=u00',   // マイページ登録
+  u05: LIFF + '?page=u05',   // 応募状況・出退勤
+  survey: 'https://mosa0131.my.canva.site/dahp5myj7vg', // 登録後のアンケート（liff/config.js の surveyUrl と同じ）
+  navi: 'https://wolly-spot.github.io/wolly-machi-navi/',
+  ask: 'https://line.me/R/oaMessage/' + OA + '/',
+  sos: 'https://line.me/R/oaMessage/' + OA + '/?' + encodeURIComponent('緊急連絡'),
+  share: 'https://line.me/R/oaMessage/' + OA + '/' + encodeURIComponent('QRコードを受け取る'),
+  terms: '',   // 利用規約のURL（できたら入れる）
+  privacy: ''  // プライバシーポリシーのURL（できたら入れる）
+};
+document.querySelectorAll('[data-link]').forEach(function (a) {
+  var u = LINKS[a.getAttribute('data-link')];
+  if (u) a.href = u; else a.removeAttribute('href');
+});
+var legal = document.getElementById('legal');
+[['terms', '利用規約'], ['privacy', 'プライバシーポリシー']].forEach(function (p) {
+  if (LINKS[p[0]]) { var a = document.createElement('a'); a.href = LINKS[p[0]]; a.textContent = p[1]; legal.appendChild(a); }
+});
+
+/* スクロールで少しずつ表示 */
+if ('IntersectionObserver' in window) {
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+} else {
+  document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+}
+
+/* 目次：いま読んでいる所に色を付ける */
+var tocLinks = [].slice.call(document.querySelectorAll('.toc a'));
+var tocBox = document.querySelector('.toc');
+function markToc() {
+  var cur = null;
+  tocLinks.forEach(function (a) {
+    var s = document.querySelector(a.getAttribute('href'));
+    if (s && s.getBoundingClientRect().top < 120) cur = a;
+  });
+  tocLinks.forEach(function (a) { a.classList.toggle('on', a === cur); });
+  if (cur && cur !== markToc.last) { markToc.last = cur; tocBox.scrollTo({ left: cur.offsetLeft - 14, behavior: 'smooth' }); }
+}
+var tt = document.getElementById('toTop');
+window.addEventListener('scroll', function () { markToc(); tt.classList.toggle('show', window.scrollY > 600); }, { passive: true });
+</script>
+</body>
+</html>
