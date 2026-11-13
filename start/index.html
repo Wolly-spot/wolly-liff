@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wolly work list｜マイページ登録</title>
+<meta name="description" content="あなたに合ったお仕事が、LINEに直接届く。地域限定のお仕事配信サービス Wolly。">
+<meta name="theme-color" content="#f6efe2">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#efe7da;-webkit-text-size-adjust:100%}
+body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;color:#3a332d}
+a,button{-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;background:#fff;min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,.08)}
+.pg{position:relative;width:100%}
+.pg img{display:block;width:100%;height:auto}
+/* リンクの場所（絵の上に透明のボタン） */
+.hs{position:absolute;display:block;border:0;padding:0;margin:0;background:transparent;cursor:pointer;border-radius:18px;overflow:hidden;font:inherit}
+.hs::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#fff;opacity:0;transition:opacity .25s}
+.hs:active::after,.hs.tap::after{opacity:.28;transition:none}
+.hs:focus-visible{outline:3px solid #f08a24;outline-offset:2px}
+/* 入口のボタンは、ときどき光がすっと走る */
+.hs.big::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:shine 4.2s ease-in-out infinite}
+.hs.big:nth-of-type(2)::before{animation-delay:1.4s}.hs.big:nth-of-type(3)::before{animation-delay:2.8s}
+@keyframes shine{0%,62%{left:-60%}100%{left:130%}}
+.hs.pop{animation:pop .42s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(.94)}100%{transform:scale(1)}}
+/* ふわっと開くパネル */
+.ov{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(58,51,45,0);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0);transition:background .35s,backdrop-filter .35s,-webkit-backdrop-filter .35s;pointer-events:none}
+.ov.on{background:rgba(58,51,45,.38);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:auto}
+.sh{position:relative;width:100%;max-width:560px;height:calc(100% - 26px);margin-top:26px;background:#fff;border-radius:24px 24px 0 0;overflow:hidden;box-shadow:0 -10px 40px rgba(0,0,0,.18);
+  transform:translate(var(--fx,0),calc(var(--fy,40vh))) scale(.3);opacity:0;transform-origin:50% 0;transition:transform .55s cubic-bezier(.2,1.1,.3,1),opacity .3s}
+.ov.on .sh{transform:none;opacity:1}
+.sh .sc{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sh .grab{position:absolute;top:7px;left:50%;width:44px;height:5px;margin-left:-22px;border-radius:9px;background:rgba(255,255,255,.85);box-shadow:0 1px 4px rgba(0,0,0,.25);z-index:3}
+.x{position:absolute;top:12px;right:12px;z-index:3;width:42px;height:42px;border-radius:50%;border:2px solid #fff;background:rgba(58,51,45,.62);color:#fff;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.25);display:grid;place-items:center}
+.x:active{transform:scale(.92)}
+.back{display:block;width:calc(100% - 40px);margin:18px auto 28px;padding:14px;border:0;border-radius:999px;background:#5f8f3e;color:#fff;font:inherit;font-weight:700;font-size:16px;box-shadow:0 4px 0 #3f6a25;cursor:pointer}
+.back:active{transform:translateY(3px);box-shadow:0 1px 0 #3f6a25}
+/* ページを移るときのふわっ */
+.leave{position:fixed;inset:0;z-index:80;background:#fff;opacity:0;pointer-events:none;transition:opacity .35s}
+.leave.on{opacity:.85}
+@media (prefers-reduced-motion:reduce){.hs.big::before,.hs.pop{animation:none}.sh,.ov{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="pg" style="aspect-ratio:780/2400"><img src="img/main-1.webp" width="780" height="1400" alt="" decoding="async"><img src="img/main-2.webp" width="780" height="1000" alt="" loading=lazy decoding="async"><a class="hs big" href="https://liff.line.me/2007823365-RNfPYqlv?page=u00" data-go style="left:1.90%;top:69.300%;width:48.10%;height:16.150%" aria-label="マイページ登録"></a><button type="button" class="hs big" data-sheet="start" style="left:50.95%;top:69.300%;width:48.10%;height:16.150%" aria-label="お仕事はどうやって依頼が来るの？（Wollyの始め方）"></button><button type="button" class="hs big" data-sheet="topics" style="left:1.95%;top:86.092%;width:96.08%;height:15.733%" aria-label="ジャンル別スキマバイト一覧"></button></div></div>
+<template id="t-start"><div class="pg" style="aspect-ratio:780/11536"><img src="img/start-1.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/start-2.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/start-3.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/start-4.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/start-5.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/start-6.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/start-7.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/start-8.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/start-9.webp" width="780" height="336" alt="" loading=lazy decoding="async"><a class="hs" href="https://liff.line.me/2007823365-RNfPYqlv?page=u00" data-go style="left:16.38%;top:27.979%;width:65.28%;height:1.288%" aria-label="マイページ登録"></a><a class="hs" href="https://liff.line.me/2007823365-RNfPYqlv?page=u00" data-go style="left:17.36%;top:41.973%;width:65.28%;height:1.288%" aria-label="マイページ登録"></a><a class="hs" href="https://liff.line.me/2007823365-RNfPYqlv?page=u00" data-go style="left:8.36%;top:55.810%;width:83.26%;height:1.644%" aria-label="マイページ登録"></a><a class="hs" href="https://liff.line.me/2007823365-RNfPYqlv?page=u00" data-go style="left:13.46%;top:70.501%;width:73.10%;height:1.442%" aria-label="マイページ登録"></a></div></template>
+<template id="t-topics"><div class="pg" style="aspect-ratio:780/2586"><img src="img/topics-1.webp" width="780" height="1400" alt="" loading=lazy decoding="async"><img src="img/topics-2.webp" width="780" height="1186" alt="" loading=lazy decoding="async"><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E3%83%88%E3%83%AA%E3%83%9E%E3%83%BC%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:33.418%;width:86.56%;height:5.584%" aria-label="トリマーアンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E5%8B%95%E7%89%A9%E3%82%B1%E3%82%A2%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:38.971%;width:86.56%;height:5.553%" aria-label="動物ケアスタッフアンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E6%B8%85%E6%8E%83%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:43.782%;width:86.56%;height:5.584%" aria-label="清掃スタッフアンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E7%BE%8E%E5%AE%B9%E5%B8%AB%E3%82%A2%E3%82%B7%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%88%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%82%92%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:49.335%;width:86.56%;height:4.849%" aria-label="美容師アシスタントアンケートを回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E7%BE%8E%E5%AE%B9%E5%B8%AB%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AA%E3%82%B9%E3%83%88%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%82%92%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:54.153%;width:86.56%;height:5.584%" aria-label="美容師スタイリストアンケートを回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E4%BF%9D%E8%82%B2%E5%A3%AB%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:59.002%;width:86.56%;height:5.553%" aria-label="保育士アンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E4%BF%9D%E8%82%B2%E8%A3%9C%E5%8A%A9%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:63.821%;width:86.56%;height:5.584%" aria-label="保育補助スタッフアンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E5%9C%B0%E5%85%83%E3%81%AE%E3%82%B7%E3%83%A7%E3%83%83%E3%83%97%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:68.677%;width:86.56%;height:5.553%" aria-label="地元のショップアンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%88%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:74.192%;width:86.56%;height:4.888%" aria-label="リモートアンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:78.345%;width:86.56%;height:5.553%" aria-label="イベントスタッフアンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E3%82%B9%E3%83%BC%E3%83%91%E3%83%BC%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.72%;top:82.978%;width:86.56%;height:5.553%" aria-label="スーパースタッフアンケートに回答する"></a><a class="hs" href="https://line.me/R/oaMessage/@908wrcaq/?%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8B%E3%82%A2%E3%83%B3%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AB%E5%9B%9E%E7%AD%94%E3%81%99%E3%82%8B" data-go style="left:6.97%;top:87.804%;width:86.56%;height:5.553%" aria-label="コンビニアンケートに回答する"></a><a class="hs" href="https://liff.line.me/2007823365-RNfPYqlv?page=u01" data-go style="left:16.67%;top:95.429%;width:71.56%;height:7.193%" aria-label="求人一覧を見る"></a></div></template>
+<div class="leave" id="leave"></div>
+<script>
+(function(){
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let ov=null,from=null;
+function open(name,el){
+  if(ov)return;
+  from=el;
+  ov=document.createElement("div");ov.className="ov";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");
+  ov.setAttribute("aria-label",name==="start"?"Wollyの始め方":"ジャンル別スキマバイト一覧");
+  ov.innerHTML='<div class="sh"><span class="grab"></span><button type="button" class="x" aria-label="とじる">×</button><div class="sc"></div></div>';
+  const sc=ov.querySelector(".sc");sc.appendChild(document.getElementById("t-"+name).content.cloneNode(true));
+  const b=document.createElement("button");b.type="button";b.className="back";b.textContent="とじて、もどる";sc.appendChild(b);
+  const sh=ov.querySelector(".sh");
+  if(el){const r=el.getBoundingClientRect();sh.style.setProperty("--fx",(r.left+r.width/2-innerWidth/2)+"px");sh.style.setProperty("--fy",(r.top-26)+"px")}
+  document.body.appendChild(ov);document.body.style.overflow="hidden";
+  history.pushState({sheet:name},"","#"+name);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add("on")));
+  ov.addEventListener("click",e=>{if(e.target===ov||e.target.closest(".x,.back"))history.back()});
+  ov.querySelector(".x").focus({preventScroll:true});
+}
+function close(){
+  if(!ov)return;const o=ov;ov=null;o.classList.remove("on");document.body.style.overflow="";
+  setTimeout(()=>o.remove(),RM?0:420);from&&from.focus&&from.focus({preventScroll:true});
+}
+addEventListener("popstate",()=>{if(ov)close();else if(location.hash==="#start"||location.hash==="#topics")open(location.hash.slice(1),null)});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&ov)history.back()});
+document.addEventListener("click",e=>{
+  const s=e.target.closest("[data-sheet]");
+  if(s){e.preventDefault();s.classList.remove("pop");void s.offsetWidth;s.classList.add("pop");setTimeout(()=>open(s.dataset.sheet,s),RM?0:160);return}
+  const g=e.target.closest("a[data-go]");
+  if(g){e.preventDefault();g.classList.add("tap");const lv=document.getElementById("leave");lv.classList.add("on");
+    setTimeout(()=>{location.href=g.href},RM?0:260);setTimeout(()=>{g.classList.remove("tap");lv.classList.remove("on")},1500)}
+});
+/* 戻るボタンでこのページに戻ったとき、白いままにならないように */
+addEventListener("pageshow",()=>document.getElementById("leave").classList.remove("on"));
+if(location.hash==="#start"||location.hash==="#topics"){const h=location.hash.slice(1);history.replaceState(null,"",location.pathname+location.search);open(h,null)}
+})();
+</script>
+</body>
+</html>
