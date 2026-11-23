@@ -13,7 +13,7 @@ window.WOLLY = {
     user: '2007823365-RNfPYqlv',
     client: '2008208202-S9qM2QBx'
   },
-  termsUrl: '',
-  privacyUrl: '',
+  termsUrl: 'https://wolly-spot.github.io/wolly-liff/terms/',
+  privacyUrl: 'https://wolly-spot.github.io/wolly-liff/policy/',
   surveyUrl: 'https://mosa0131.my.canva.site/dahp5myj7vg'
 };
