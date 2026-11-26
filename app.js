@@ -31,6 +31,8 @@ function url(page,extra){
   if(TEST){q.set('uid',CFG.uid);return CFG.baseUrl+'?'+q.toString()}
   return location.pathname+'?'+q.toString();
 }
+/* 画面を移る（リンクを押したのと同じにする。読み込み中の表示も出る） */
+function go(u){const a=document.createElement('a');a.href=u;document.body.appendChild(a);a.click();a.remove()}
 function closeApp(){if(TEST)return toast('テスト用画面です（LINEでは閉じます）');try{liff.closeWindow()}catch(_){}}
 
 /* ---------- 画面の部品 ---------- */
@@ -102,6 +104,42 @@ function bindSubmit(form,title,fn){
     finally{busy(false)}
   });
 }
+/* ---------- カレンダー（月ごと）。複数の日を選ぶ・その日の予定を見るのに使う ----------
+ * o.month 'yyyy-MM'、o.marks {'yyyy-MM-dd':{cls,txt}}、o.sel 選んだ日の Set、o.min/o.max 選べる範囲、o.only marks のある日だけ押せる、o.onTap(日付) */
+const WD=['日','月','火','水','木','金','土'];
+const CAL_IC='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+function mdw(k){const p=String(k||'').split('-').map(Number);if(p.length<3)return '';const d=new Date(p[0],p[1]-1,p[2]);return (p[1])+'/'+p[2]+'('+WD[d.getDay()]+')'}
+function datesText(ks){ks=ks.slice().sort();return ks.length<=3?ks.map(mdw).join('・'):mdw(ks[0])+'〜'+mdw(ks[ks.length-1])+'のうち'+ks.length+'日'}
+function addMonth(m,n){const p=m.split('-').map(Number),d=new Date(p[0],p[1]-1+n,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function calendar(box,o){
+  const today=ymd(new Date());let m=o.month||today.slice(0,7);
+  const draw=()=>{
+    const p=m.split('-').map(Number),lead=new Date(p[0],p[1]-1,1).getDay(),days=new Date(p[0],p[1],0).getDate();
+    let cells='';for(let i=0;i<lead;i++)cells+='<span class="cd empty" aria-hidden="true"></span>';
+    for(let d=1;d<=days;d++){
+      const k=m+'-'+String(d).padStart(2,'0'),wd=(lead+d-1)%7,mk=(o.marks||{})[k],on=o.sel&&o.sel.has(k);
+      const dis=(o.min&&k<o.min)||(o.max&&k>o.max)||(o.only&&!mk);
+      cells+=`<button type="button" class="cd${wd===0?' sun':wd===6?' sat':''}${on?' on':''}${mk?' '+mk.cls:''}${k===today?' today':''}" data-d="${k}" ${dis?'disabled':''} ${o.sel?`aria-pressed="${on?'true':'false'}"`:''} aria-label="${p[1]}月${d}日（${WD[wd]}）${mk&&mk.txt?' '+esc(mk.txt):''}"><b>${d}</b>${mk&&mk.txt?`<small>${esc(mk.txt)}</small>`:''}</button>`;
+    }
+    box.innerHTML=`<div class="cal"><div class="cal-h"><button type="button" class="cal-nav" data-nav="-1" aria-label="前の月">‹</button><b>${CAL_IC}${p[0]}年${p[1]}月</b><button type="button" class="cal-nav" data-nav="1" aria-label="次の月">›</button></div>
+      <div class="cal-w" aria-hidden="true">${WD.map((w,i)=>`<span class="${i===0?'sun':i===6?'sat':''}">${w}</span>`).join('')}</div><div class="cal-g">${cells}</div></div>`;
+  };
+  box.addEventListener('click',e=>{
+    const n=e.target.closest('[data-nav]');if(n){m=addMonth(m,+n.dataset.nav);draw();return}
+    const c=e.target.closest('[data-d]');if(c&&!c.disabled&&o.onTap){o.onTap(c.dataset.d);draw()}
+  });
+  draw();
+  return {redraw:draw,month:()=>m,days:()=>{const p=m.split('-').map(Number),n=new Date(p[0],p[1],0).getDate(),out=[];for(let d=1;d<=n;d++)out.push(m+'-'+String(d).padStart(2,'0'));return out}};
+}
+/* 応募締切の決め方（gas/Service.gs の DEADLINE_RULES と同じ） */
+const DEADLINE_RULES=[['prev18','前日の18時'],['prev12','前日の12時'],['prev2d18','2日前の18時'],['before24h','勤務開始の24時間前'],['before5h','勤務開始の5時間前'],['before3h','勤務開始の3時間前'],['before2h','勤務開始の2時間前']];
+function deadlineFor(date,start,rule){
+  const x=String(start||'').match(/(\d{1,2}):(\d{2})/);if(!x)return '';
+  const s=+x[1]*60+ +x[2],p=date.split('-').map(Number);
+  const at=(back,min)=>{const d=new Date(p[0],p[1]-1,p[2]-back);while(min<0){min+=1440;d.setDate(d.getDate()-1)}return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+') '+String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0')};
+  return {prev18:at(1,1080),prev12:at(1,720),prev2d18:at(2,1080),before24h:at(1,s),before5h:at(0,s-300),before3h:at(0,s-180),before2h:at(0,s-120)}[rule]||'';
+}
+
 function statusBadge(s){const c={採用:'ok',就業済み:'ok',不採用:'ng',選考中:'warn',キャンセル:'',欠勤:'ng',中止:'ng',完了:'ok',掲載中:'ac',審査中:'warn',差し戻し:'ng',掲載準備中:'warn',募集終了:'',掲載終了:'',承認済み:'ok'}[s]||'';return `<span class="badge ${c}">${esc(s)}</span>`}
 function jobBox(j){return `<div class="box jobbox">${j.thumb?`<img class="jthumb" src="${esc(j.thumb)}" alt="">`:''}<b>${esc(j.dateLabel)} ${esc(j.start)}〜${esc(j.end)}</b>${esc(j.title)}<br>時給 ${yen(j.wage)}${j.fare&&j.fare!=='なし'?'｜交通費 '+esc(j.fare):''}<br><span class="note">${esc(j.clientName)}｜${esc(j.place)}<br>応募締切 ${esc(j.deadline||'—')}｜求人番号 ${esc(j.id)}${j.license==='あり'?'<br>免許・資格が必要なお仕事です':''}</span>${j.belong?`<span class="note" style="display:block;margin-top:6px">持ち物・服装：${esc(j.belong)}</span>`:''}</div>`}
 
@@ -178,42 +216,89 @@ async function u00(){
   });
 }
 
-/* ---------- U-01 求人一覧（リッチメニュー「Wolly spot worklist」） ---------- */
+/* ---------- U-01 求人一覧（リッチメニュー「Wolly spot worklist」）
+ * 上にカレンダー（お仕事のある日に件数）。希望の日をタップすると、その日のお仕事だけが出る。
+ * 同じ内容で何日もある求人（まとめ依頼）は1枚のカードにまとめ、日にちを選んでエントリーする */
 async function u01(){
   const T='求人一覧';loading(T);
-  let l;try{l=await call('jobList')}catch(e){return fail(T,e)}
-  shell(T,(l.length?l.map(j=>`<article class="card jobcard">${j.thumb?`<img class="jthumb" src="${esc(j.thumb)}" alt="">`:''}
-    <b class="jdate">${esc(j.dateLabel)} ${esc(j.start)}〜${esc(j.end)}</b>
+  let l,mine=[];try{[l,mine]=await Promise.all([call('jobList'),call('myApps').catch(()=>[])])}catch(e){return fail(T,e)}
+  if(!l.length)return shell(T,'<p class="note">いま募集中のお仕事はありません。新着はLINEでお知らせします。</p>');
+  /* 自分が応募している求人（選考中・採用・就業済み）。カレンダーとカードに「応募済」を出す */
+  const myJob={};(mine||[]).forEach(a=>{if(['選考中','採用','就業済み'].indexOf(a.status)>=0)myJob[a.jobId]=a});
+  const groups=[],at={};
+  l.forEach(j=>{const k=j.groupId||j.id;if(!(k in at)){at[k]=groups.length;groups.push({key:k,jobs:[]})}groups[at[k]].jobs.push(j)});
+  const marks={};l.forEach(j=>{const m=marks[j.date]||(marks[j.date]={cls:'has',n:0});m.n++;m.txt=m.n+'件'});
+  Object.keys(myJob).forEach(id=>{const a=myJob[id];if(!a.date)return;const m=marks[a.date]||(marks[a.date]={cls:'has',n:0});m.cls='has mine';m.txt=a.status==='選考中'?'応募済':a.status==='採用'?'採用':'済'});
+  const pick=new Set(),focus=C.q.get('group')||'';
+  shell(T,`<section class="card calcard"><h2 class="sec">${CAL_IC}お仕事のある日</h2>
+    <p class="note">数字の下の「○件」がお仕事のある日です。希望の日をタップすると、その日のお仕事だけが出ます（いくつでも選べます）。</p>
+    <div id="cal"></div>${Object.keys(myJob).length?'<p class="legend"><span class="lg has">○件＝お仕事のある日</span><span class="lg mine">✓ 応募済・採用＝あなたが応募した日</span></p>':''}<p class="datesum" id="pickSum" aria-live="polite"></p></section><div id="list"></div>`);
+  const card=g=>{
+    const j=g.jobs[0],many=g.jobs.length>1;
+    const days=many?`<div class="fld"><span class="lbl">${CAL_IC}エントリーする日（いくつでも）</span><div class="chips daychips">${g.jobs.map(x=>`${myJob[x.id]?`<label class="applied"><input type="checkbox" disabled>${esc(mdw(x.date))} 応募済</label>`:`<label><input type="checkbox" name="d-${esc(g.key)}" value="${esc(x.id)}" ${pick.has(x.date)||(!pick.size&&focus===g.key)?'checked':''}>${esc(mdw(x.date))}</label>`}`).join('')}</div></div>`:'';
+    return `<article class="card jobcard" id="g-${esc(g.key)}">${j.thumb?`<img class="jthumb" src="${esc(j.thumb)}" alt="">`:''}
+    <b class="jdate">${esc(many?datesText(g.jobs.map(x=>x.date)):j.dateLabel)} ${esc(j.start)}〜${esc(j.end)}</b>
     <h2 class="jtitle">${esc(j.title)}</h2>
+    ${(()=>{const n=g.jobs.filter(x=>myJob[x.id]).length;return n?`<p class="mybadge">✓ ${many?n+'日分 応募済':'応募済み（'+esc(myJob[j.id].status)+'）'}</p>`:''})()}
     <p class="note">${esc(j.clientName)}｜${esc(j.place)}</p>
     <p class="jpay">時給 ${yen(j.wage)}${j.fare&&j.fare!=='なし'?`<span class="note">交通費 ${esc(j.fare)}</span>`:''}</p>
-    <p class="note">募集 ${esc(j.need)}名｜応募締切 ${esc(j.deadline)}${j.cond==='18歳以上'||j.night?'｜18歳以上':''}${j.license==='あり'?'｜免許・資格が必要':''}</p>
+    <p class="note">募集 ${esc(j.need)}名${many?'（各日）':''}｜応募締切 ${many?'日ごと（はじめの日は '+esc(j.deadline)+'）':esc(j.deadline)}${j.cond==='18歳以上'||j.night?'｜18歳以上':''}${j.license==='あり'?'｜免許・資格が必要':''}</p>
     ${j.belong?`<p class="note">持ち物・服装：${esc(j.belong)}</p>`:''}
-    <a class="btn-main linkbtn" href="${esc(url('u03',{job:j.id}))}">エントリーする</a></article>`).join(''):'<p class="note">いま募集中のお仕事はありません。新着はLINEでお知らせします。</p>'));
+    ${days}
+    ${many?(g.jobs.every(x=>myJob[x.id])?'<p class="note">すべての日に応募済みです。</p>':`<button class="btn-main" type="button" data-entry="${esc(g.key)}">選んだ日でエントリーする</button>`):myJob[j.id]?`<a class="btn-sub linkbtn" href="${esc(url('u05'))}">応募状況を見る</a>`:`<a class="btn-main linkbtn" href="${esc(url('u03',{job:j.id}))}">エントリーする</a>`}</article>`;
+  };
+  const drawList=()=>{
+    const show=pick.size?groups.filter(g=>g.jobs.some(x=>pick.has(x.date))):groups;
+    const ks=Array.from(pick).sort();
+    document.getElementById('pickSum').innerHTML=ks.length?`<b>選んだ日：${esc(ks.map(mdw).join('、'))}</b><button type="button" class="linkish" data-clear="1">すべての日を見る</button>`:'';
+    document.getElementById('list').innerHTML=show.map(card).join('')||'<p class="note">選んだ日のお仕事はありません。</p>';
+  };
+  const first=focus&&groups[at[focus]]?groups[at[focus]].jobs[0].date:l[0].date;
+  const cal=calendar(document.getElementById('cal'),{month:first.slice(0,7),marks,sel:pick,only:true,onTap:k=>{if(pick.has(k))pick.delete(k);else pick.add(k);drawList()}});
+  app.addEventListener('click',e=>{
+    if(e.target.closest('[data-clear]')){pick.clear();cal.redraw();drawList();return}
+    const b=e.target.closest('[data-entry]');if(!b)return;
+    const ids=Array.from(app.querySelectorAll(`input[name="d-${b.dataset.entry}"]:checked`)).map(x=>x.value);
+    if(!ids.length){toast('エントリーする日にちを選んでください');return}
+    go(url('u03',{jobs:ids.join(',')}));
+  });
+  drawList();
+  if(focus&&document.getElementById('g-'+focus))document.getElementById('g-'+focus).scrollIntoView({block:'start'});
 }
 
-/* ---------- U-03 応募確認 ---------- */
+/* ---------- U-03 応募確認（?job=1件、または ?jobs=いくつかの日をまとめて） ---------- */
 async function u03(){
-  const T='応募確認';loading(T);const job=C.q.get('job')||'';
-  let d;try{d=await call('getJob',{jobId:job})}catch(e){return fail(T,e)}
-  const j=d.job;
-  if(!d.registered){return shell(T,`${jobBox(j)}<div class="warnbox">応募の前に、マイページ登録をお願いします（1回だけ）。</div><a class="btn-sub" href="${esc(url('u00'))}">マイページ登録へ</a>`)}
-  shell(T,`<form id="f">${jobBox(j)}
+  const T='応募確認';loading(T);
+  const ids=(C.q.get('jobs')||C.q.get('job')||'').split(',').filter(Boolean);
+  let d;try{d=await call('getJobs',{jobIds:ids})}catch(e){return fail(T,e)}
+  const items=d.items,j=items[0].job,many=items.length>1;
+  if(!many&&items[0].closed)return fail(T,new Error(items[0].closed));
+  const head=many?`<div class="box jobbox">${j.thumb?`<img class="jthumb" src="${esc(j.thumb)}" alt="">`:''}<b>${esc(j.title)}</b>${esc(j.start)}〜${esc(j.end)}（休憩${esc(j.rest)}分）<br>時給 ${yen(j.wage)}${j.fare&&j.fare!=='なし'?'｜交通費 '+esc(j.fare):''}<br><span class="note">${esc(j.clientName)}｜${esc(j.place)}${j.license==='あり'?'<br>免許・資格が必要なお仕事です':''}</span>${j.belong?`<span class="note" style="display:block;margin-top:6px">持ち物・服装：${esc(j.belong)}</span>`:''}</div>`:jobBox(j);
+  if(!d.registered){return shell(T,`${head}<div class="warnbox">応募の前に、マイページ登録をお願いします（1回だけ）。</div><a class="btn-sub" href="${esc(url('u00'))}">マイページ登録へ</a>`)}
+  const why=it=>it.closed||(it.check&&!it.check.ok?it.check.msg:'')||(it.dup?'応募済みです':'');
+  const okN=items.filter(it=>!why(it)).length;
+  const dayList=many?`<div class="fld"><span class="lbl">${CAL_IC}応募する日<span class="req">必須</span></span><div class="daylist">${items.map(it=>{const w=why(it);return `<label class="dayrow${w?' off':''}"><input type="checkbox" name="job" value="${esc(it.id)}" ${w?'disabled':'checked'}><b>${esc(it.job.dateLabel)}</b><small>${w?`<span class="ng-t">${esc(w)}</span>`:'締切 '+esc(it.job.deadline)}</small></label>`}).join('')}</div><p class="note">行けない日はチェックを外してください。採否は日ごとにお知らせします。</p></div>`
+    :`<div class="${items[0].check.ok?'okbox':'ngbox'}">${esc(items[0].check.msg)}</div>${items[0].dup?'<div class="warnbox">この求人にはすでに応募済みです。</div>':''}`;
+  shell(T,`<form id="f">${head}
   ${j.night?'<p class="note">22時〜翌5時を含むお仕事です（18歳未満の方は応募できません）。</p>':''}
   <div class="fld"><span class="lbl">応募者（登録情報）</span><div class="box">氏名：${esc(d.user.name)}<br>住所：${esc(d.user.addr)}<br>電話：登録済み</div><a href="${esc(url('u00'))}" class="note">登録内容を変更する</a></div>
-  <div class="${d.check.ok?'okbox':'ngbox'}">${esc(d.check.msg)}</div>
-  ${d.dup?'<div class="warnbox">この求人にはすでに応募済みです。</div>':''}
+  ${dayList}
   <div class="fld"><label for="comment">お仕事先へのひとこと（任意）</label><textarea id="comment" name="comment" maxlength="200" placeholder="例：飲食店でのアルバイト経験があります"></textarea></div>
   <p class="note">応募の時点でお仕事先に伝わるのは、年代・性別・住所（市区町村）・ひとことです。会員ID・氏名・電話番号・住所・年齢は、採用が決まったときに伝わります。メールアドレスは伝わりません。給与は勤務日の翌月5日にWollyからお支払いします。</p>
   <label class="agree"><input type="checkbox" name="agree" required>採用時に会員ID・氏名・電話番号・住所・年齢をお仕事先へ伝えることに同意します</label>
-  <button class="btn-main" type="submit" ${!d.check.ok||d.dup?'disabled':''}>エントリーする</button></form>`);
+  <button class="btn-main" type="submit" ${okN?'':'disabled'}>${many?'選んだ日でエントリーする':'エントリーする'}</button></form>`);
   bindSubmit(document.getElementById('f'),T,async fd=>{
-    const r=await call('apply',{jobId:job,comment:fd.get('comment')});
-    done('応募完了',`<b style="font-size:17px">応募を受け付けました</b><p class="note">結果はLINEでお知らせします。</p><div class="box" style="text-align:left">求人番号 ${esc(r.job.id)}<br>${esc(r.job.dateLabel)} ${esc(r.job.start)}〜${esc(r.job.end)}<br>${esc(r.job.title)}<br>${esc(r.job.clientName)}｜${esc(r.job.place)}</div><p><a class="btn-sub" href="${esc(url('u05'))}">応募状況を見る</a></p>`);
+    const pick=many?fd.getAll('job'):[items[0].id];
+    if(!pick.length)throw new Error('応募する日を選んでください。');
+    const r=await call('applyMany',{jobIds:pick,comment:fd.get('comment')});
+    const js=r.apps.map(x=>x.job);
+    done('応募完了',`<b style="font-size:17px">応募を受け付けました${js.length>1?'（'+js.length+'日）':''}</b><p class="note">結果はLINEでお知らせします。</p><div class="box" style="text-align:left">${esc(js[0].title)}<br>${esc(js[0].clientName)}｜${esc(js[0].place)}<br>${js.map(x=>`${esc(x.dateLabel)} ${esc(x.start)}〜${esc(x.end)}（求人番号 ${esc(x.id)}）`).join('<br>')}</div>${r.skipped.length?`<div class="warnbox" style="text-align:left">応募できなかった日：<br>${r.skipped.map(x=>esc(x.msg)).join('<br>')}</div>`:''}<p><a class="btn-sub" href="${esc(url('u05'))}">応募状況・出退勤を見る</a></p>`);
   });
 }
 
-/* ---------- U-05 応募状況・出退勤（U-06 も同じ画面）：上に今日のお仕事と大きな出退勤ボタン、下に応募の一覧 ---------- */
+/* ---------- U-05 応募状況・出退勤（U-06 も同じ画面）
+ * 上に今日のお仕事と大きな出退勤ボタン、まんなかに予定のカレンダー（勤務・選考中・出退勤の記録）、下に応募の一覧 ---------- */
+const CAL_STATE={採用:['work','勤務'],就業済み:['done','済'],選考中:['wait','選考中']};
 async function u05(){
   const T='応募状況・出退勤';loading(T);
   let l,shifts;try{[l,shifts]=await Promise.all([call('myApps'),call('myShifts')])}catch(e){return fail(T,e)}
@@ -224,8 +309,27 @@ async function u05(){
     <button class="punch-btn out" type="button" data-app="${esc(a.id)}" data-kind="out" ${!a.checkin||a.checkout?'disabled':''}><span class="pb-en">CHECK-OUT</span>チェックアウト（退勤）</button>
     ${a.checkout?'<p class="okbox">今日の記録は完了しています。お疲れさまでした。</p>':a.checkin?'<p class="note">お仕事が終わったら、チェックアウトを押してください。</p>':'<p class="note">お仕事を始めるときに、チェックインを押してください。</p>'}</section>`).join('')
     :'<div class="box today-none">今日の勤務予定はありません。<span class="note">採用が決まったお仕事の当日に、ここに出勤・退勤のボタンが出ます。</span></div>';
-  const list=l.length?l.map(a=>`<div class="row"><div><b>${esc(a.dateLabel)} ${esc(a.title)}</b><small>${esc(a.clientName)}｜${esc(a.place)}<br>${esc(a.jobId)}${a.checkin?'｜出勤 '+esc(a.checkin):''}${a.checkout?'｜退勤 '+esc(a.checkout):''}</small></div>${statusBadge(a.status)}</div>`).join(''):'<p class="note">まだ応募はありません。</p>';
-  shell(T,today+'<h2 class="sec">応募したお仕事</h2>'+list+'<p class="note">押した時刻がそのまま記録されます。押し忘れ・遅刻・キャンセル・欠勤は、Wollyのトークで連絡してください。</p>');
+  /* 予定のカレンダー：採用＝勤務、出退勤を記録した日＝済（出勤だけなら出勤中）、選考中 */
+  const marks={},rank={in:4,work:3,done:2,wait:1};   // 同じ日に何件かあれば、まだ終わっていないほうを出す
+  l.forEach(a=>{
+    if(!a.date)return;
+    let st=CAL_STATE[a.status];if(!st)return;
+    if(a.checkout)st=['done','済'];else if(a.checkin)st=['in','出勤中'];
+    const m=marks[a.date];if(!m||rank[st[0]]>rank[m.cls])marks[a.date]={cls:st[0],txt:st[1]};
+  });
+  const ks=Object.keys(marks).sort(),now=ymd(new Date());
+  const firstM=(ks.find(k=>k>=now)||ks[ks.length-1]||now).slice(0,7);
+  const row=a=>`<div class="row"><div><b>${esc(a.dateLabel)} ${esc(a.title)}</b><small>${esc(a.clientName)}｜${esc(a.place)}<br>${esc(a.start||'')}${a.start?'〜':''}${esc(a.end||'')}｜${esc(a.jobId)}${a.checkin?'｜出勤 '+esc(hm(a.checkin)):''}${a.checkout?'｜退勤 '+esc(hm(a.checkout)):''}</small></div>${statusBadge(a.status)}</div>`;
+  const list=l.length?l.map(row).join(''):'<p class="note">まだ応募はありません。</p>';
+  shell(T,today+`<section class="card calcard"><h2 class="sec">${CAL_IC}わたしの予定</h2><div id="cal"></div>
+    <p class="legend"><span class="lg work">勤務</span><span class="lg in">出勤中</span><span class="lg done">済（出退勤の記録あり）</span><span class="lg wait">選考中</span></p>
+    <div id="dayInfo" aria-live="polite"><p class="note">日にちをタップすると、その日のお仕事と出退勤の時刻が出ます。</p></div></section>`
+    +'<h2 class="sec">応募したお仕事</h2>'+list+'<p class="note">押した時刻がそのまま記録されます。押し忘れ・遅刻・キャンセル・欠勤は、Wollyのトークで連絡してください。</p>');
+  const sel=new Set();
+  calendar(document.getElementById('cal'),{month:firstM,marks,sel,only:true,onTap:k=>{sel.clear();sel.add(k);
+    const xs=l.filter(a=>a.date===k&&CAL_STATE[a.status]);
+    document.getElementById('dayInfo').innerHTML=`<h3 class="sub">${esc(mdw(k))}のお仕事</h3>`+xs.map(row).join('')+(k===now&&shifts.length?'<p class="note">出勤・退勤は、いちばん上のボタンで記録します。</p>':'');
+  }});
   app.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',async()=>{
     if(b.dataset.kind==='out'&&!confirm('チェックアウト（退勤）を記録しますか？'))return;
     b.disabled=true;busy(true,'記録しています…');
@@ -301,7 +405,12 @@ async function c02(){
   shell(editId?'求人依頼の修正':T,`<form id="f">
   ${editId?`<div class="warnbox"><b>運営からの確認事項</b>${esc(j.reason)}</div>`:''}
   <div class="fld"><label for="title">職種・仕事内容<span class="req">必須</span></label><input id="title" name="title" value="${esc(j.title)}" required></div>
-  <div class="fld"><label for="date">勤務日<span class="req">必須</span></label><input id="date" name="date" type="date" min="${ymd(tm)}" value="${esc(j.date)}" required></div>
+  ${editId?`<div class="fld"><label for="date">勤務日<span class="req">必須</span></label><input id="date" name="date" type="date" min="${ymd(tm)}" value="${esc(j.date)}" required></div>`
+  :`<div class="fld" id="datesFld"><span class="lbl">勤務日（いくつでも選べます）<span class="req">必須</span></span>
+    <p class="note">カレンダーの日にちをタップして選びます。もう一度タップすると外れます。</p>
+    <div id="cal"></div>
+    <div class="calquick"><button type="button" class="btn-sub" data-q="wd">この月の平日をぜんぶ</button><button type="button" class="btn-sub" data-q="we">この月の土日をぜんぶ</button><button type="button" class="btn-sub" data-q="clr">選んだ日を外す</button></div>
+    <p class="datesum" id="datesSum" aria-live="polite"></p></div>`}
   <div class="grid3"><div class="fld"><label for="start">開始<span class="req">必須</span></label><input id="start" name="start" type="time" value="${esc(j.start||'10:00')}" required></div>
   <div class="fld"><label for="end">終了<span class="req">必須</span></label><input id="end" name="end" type="time" value="${esc(j.end||'15:00')}" required></div>
   <div class="fld"><label for="rest">休憩（分）<span class="req">必須</span></label><input id="rest" name="rest" type="number" inputmode="numeric" min="0" step="1" value="${esc(j.rest!=null?j.rest:60)}" required></div></div>
@@ -309,7 +418,8 @@ async function c02(){
   <p class="note" id="night" hidden>22時〜翌5時を含むため、18歳未満の方は応募できなくなります。</p>
   <div class="grid2"><div class="fld"><label for="wage">時給（円）<span class="req">必須</span></label><input id="wage" name="wage" type="number" inputmode="numeric" min="${esc(d.minWage||1)}" value="${esc(j.wage||d.minWage||'')}" data-minmsg="時給は最低賃金（${esc(Number(d.minWage||0).toLocaleString('ja-JP'))}円）以上にしてください。" required><p class="note">最低賃金（${esc(Number(d.minWage||0).toLocaleString('ja-JP'))}円）以上で入力します。</p></div>
   <div class="fld"><label for="need">募集人数<span class="req">必須</span></label><input id="need" name="need" type="number" min="1" value="${esc(j.need)}" required></div></div>
-  <div class="fld"><label for="deadline">応募締切<span class="req">必須</span></label><input id="deadline" name="deadline" type="datetime-local" value="${esc(toLocal(j.deadline))}" required><p class="note">勤務開始の2時間前までの日時にしてください。</p></div>
+  ${editId?`<div class="fld"><label for="deadline">応募締切<span class="req">必須</span></label><input id="deadline" name="deadline" type="datetime-local" value="${esc(toLocal(j.deadline))}" required><p class="note">勤務開始の2時間前までの日時にしてください。</p></div>`
+  :`<div class="fld"><label for="deadlineRule">応募締切（日ごとに自動で決まります）<span class="req">必須</span></label><select id="deadlineRule" name="deadlineRule">${DEADLINE_RULES.map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><p class="note" id="dlEx">勤務開始の2時間前より前にしてください。</p></div>`}
   <div class="fld"><label for="place">勤務地（空欄なら所在地）</label><input id="place" name="place" value="${esc(j.place)}" placeholder="${esc(d.addr)}"></div>
   <div class="fld"><span class="lbl">応募条件</span>${chips('cond',['条件なし','18歳以上'],[j.cond||'条件なし'],'radio')}</div>
   <div class="fld"><span class="lbl">免許・資格が必要なお仕事<span class="req">必須</span></span>${chips('license',['なし','あり'],[j.license||'なし'],'radio')}<p class="note">例：保育士・美容師・調理師など。「あり」の求人は手数料が25%、「なし」は15%です。</p></div>
@@ -321,14 +431,35 @@ async function c02(){
   <button class="btn-main" type="submit">${editId?'直して再送信':'依頼を送信'}</button></form>`);
   const f=document.getElementById('f');let imgs=[];
   bindImages(f,v=>{imgs=v});
+  /* 勤務日のカレンダー（新しい依頼のとき） */
+  const sel=new Set(),MAXD=31,minD=ymd(tm);
+  const sumUp=()=>{
+    const ks=Array.from(sel).sort(),s=document.getElementById('datesSum'),ex=document.getElementById('dlEx');if(!s)return;
+    s.innerHTML=ks.length?`<b>${CAL_IC}選んだ日：${ks.length}日</b><span>${esc(ks.map(mdw).join('、'))}</span>`:'<span class="note">まだ選んでいません。</span>';
+    const r=f.elements.namedItem('deadlineRule').value,st=f.elements.namedItem('start').value;
+    ex.textContent=ks.length?`例：${mdw(ks[0])}の締切は ${deadlineFor(ks[0],st,r)}（日ごとに同じ決め方です）`:'勤務日を選ぶと、締切の例が出ます。';
+  };
+  let cal=null;
+  if(!editId){
+    cal=calendar(document.getElementById('cal'),{month:minD.slice(0,7),sel,min:minD,onTap:k=>{if(sel.has(k))sel.delete(k);else if(sel.size>=MAXD)toast('勤務日は1回の依頼で'+MAXD+'日までです');else sel.add(k);sumUp();const b=document.getElementById('datesFld');b.classList.remove('err');const m=b.querySelector('.errmsg');if(m)m.remove()}});
+    f.addEventListener('click',e=>{const q=e.target.closest('[data-q]');if(!q)return;
+      if(q.dataset.q==='clr')sel.clear();
+      else cal.days().forEach(k=>{if(k<minD||sel.size>=MAXD)return;const w=new Date(k.split('-')[0],k.split('-')[1]-1,k.split('-')[2]).getDay(),we=w===0||w===6;if((q.dataset.q==='we')===we)sel.add(k)});
+      cal.redraw();sumUp()});
+    f.addEventListener('change',e=>{if(e.target.name==='deadlineRule'||e.target.name==='start')sumUp()});
+    sumUp();
+  }
   const nightChk=()=>{document.getElementById('night').hidden=!isNight(f.elements.namedItem('start').value,f.elements.namedItem('end').value)};
   f.elements.namedItem('start').addEventListener('change',nightChk);f.elements.namedItem('end').addEventListener('change',nightChk);nightChk();
   f.addEventListener('change',e=>{if(e.target.name==='fareKind')document.getElementById('fareBox').hidden=e.target.value!=='あり'});
   bindSubmit(f,T,async fd=>{
-    const p={jobId:editId||''};['title','date','start','end','rest','wage','need','deadline','place','cond','license','fareKind','fareAmount','belong','remarks'].forEach(k=>p[k]=fd.get(k));
+    const p={jobId:editId||''};['title','start','end','rest','wage','need','place','cond','license','fareKind','fareAmount','belong','remarks'].forEach(k=>p[k]=fd.get(k));
+    if(editId){p.date=fd.get('date');p.deadline=fd.get('deadline')}
+    else{if(!sel.size)throw new Error('勤務日を選んでください（カレンダーの日にちをタップ）。');p.dates=Array.from(sel).sort();p.deadlineRule=fd.get('deadlineRule')}
     p.images=imgs;
     const r=await call('requestJob',p);
-    done(T,`<b style="font-size:17px">${editId?'修正した依頼を送信しました':'依頼を送信しました'}</b><p>求人番号 ${esc(r.id)}</p><p class="note">内容を確認のうえ、掲載のご連絡をします。</p><p><a class="btn-sub" href="${esc(url('c03'))}">依頼状況を見る</a></p>`);
+    const ids=r.ids||[r.id];
+    done(T,`<b style="font-size:17px">${editId?'修正した依頼を送信しました':'依頼を送信しました'}</b><p>求人番号 ${esc(ids.length>1?ids[0]+'〜'+ids[ids.length-1]+'（'+ids.length+'日分）':ids[0])}</p>${ids.length>1?`<p class="note">${esc(datesText(p.dates))}</p>`:''}<p class="note">内容を確認のうえ、掲載のご連絡をします。</p><p><a class="btn-sub" href="${esc(url('c03'))}">依頼状況を見る</a></p>`);
   });
 }
 
@@ -377,7 +508,8 @@ async function c07(){
 async function c03(){
   const T='依頼状況';loading(T);
   let jobs,ads;try{[jobs,ads]=await Promise.all([call('clientJobs'),call('clientAds')])}catch(e){return fail(T,e)}
-  const jr=jobs.map(j=>`<div class="row"><div><b>${esc(j.dateLabel)} ${esc(j.title)}</b><small>${esc(j.id)}｜応募 ${j.applied}名・採用 ${j.hired}名／募集 ${j.need}名</small>
+  const gN={};jobs.forEach(j=>{if(j.groupId)gN[j.groupId]=(gN[j.groupId]||0)+1});const gSeen={};
+  const jr=jobs.map(j=>(j.groupId&&!gSeen[j.groupId]&&(gSeen[j.groupId]=1)?`<h3 class="sub">${CAL_IC}まとめ依頼（${gN[j.groupId]}日分）：${esc(j.title)}<a href="${esc(url('c04',{group:j.groupId}))}" class="note">応募者を日ごとにまとめて見る</a></h3>`:'')+`<div class="row"><div><b>${esc(j.dateLabel)} ${esc(j.title)}</b><small>${esc(j.id)}｜応募 ${j.applied}名・採用 ${j.hired}名／募集 ${j.need}名</small>
     ${j.status==='差し戻し'?`<small class="ng-t">確認事項：${esc(j.reason)}</small><a href="${esc(url('c02',{type:'job',edit:j.id}))}" class="note">直して再送信する</a>`:''}
     ${j.applied?`<a href="${esc(url('c04',{job:j.id}))}" class="note">応募者を見る</a>`:''}</div>${statusBadge(j.status)}</div>`).join('');
   const ar=ads.map(a=>`<div class="row"><div><b>${esc(a.title)}</b><small>${esc(a.id)}｜${esc(a.adType)}｜${esc(a.from)}〜${esc(a.to)}</small>
@@ -386,23 +518,31 @@ async function c03(){
   shell(T,(jr?'<h2 class="sec">求人</h2>'+jr:'')+(ar?'<h2 class="sec">広告</h2>'+ar:'')||'<p class="note">まだ依頼はありません。</p>');
 }
 
-/* ---------- C-04 応募者確認・採否回答 ---------- */
-async function c04(){
-  const T='応募者の確認';loading(T);const job=C.q.get('job')||'';
-  let d;try{d=await call('applicants',{jobId:job})}catch(e){return fail(T,e)}
-  const j=d.job;const pending=d.list.filter(a=>a.status==='パートナー確認中'&&!a.answer);
-  const rest=Math.max(0,j.need-d.hired);
-  shell(T,`<form id="f"><div><b>${esc(j.dateLabel)} ${esc(j.title)}</b><p class="note">採用 ${d.hired}名／募集 ${j.need}名${rest?`（あと${rest}名で充足）`:'（充足）'}</p></div>
+/* ---------- C-04 応募者確認・採否回答（?job=1日分、または ?group=まとめ依頼を日ごとに） ---------- */
+function c04Section(d,many){
+  const j=d.job,rest=Math.max(0,j.need-d.hired);
+  return `<div${many?' class="daysec"':''}><b>${esc(j.dateLabel)} ${esc(j.title)}</b><p class="note">${many?esc(j.id)+'｜':''}採用 ${d.hired}名／募集 ${j.need}名${rest?`（あと${rest}名で充足）`:'（充足）'}</p></div>
   ${d.list.map(a=>`<div class="card"><b>${esc(a.id)}　${esc(a.age)}・${esc(a.sex)}${a.minor?'（18歳未満）':''}</b><span class="note" style="display:block">住所：${esc(a.addr)}｜お仕事 ${a.count}回・面談${a.zoom?'済み':'未'}${a.licenses&&a.licenses.length?'<br>免許・資格：'+a.licenses.map(esc).join('、'):''}</span>${a.comment?`<div class="cmt">${esc(a.comment)}</div>`:''}
    ${a.name?`<div class="okbox" style="margin-top:8px"><b>採用確定${a.status!=='採用'?'（'+esc(a.status)+'）':''}</b>会員ID：${esc(a.memberId)}<br>氏名：${esc(a.name)}<br>電話番号：${esc(a.tel)}<br>住所：${esc(a.addr)}<br>年齢：${esc(a.ageNum)}歳</div>`:
      a.status!=='パートナー確認中'?`<p class="note" style="margin-top:6px">${statusBadge(a.status)}</p>`:
      a.answer?`<p class="note" style="margin-top:6px">回答済み：${esc(a.answer)}（運営から本人へ連絡します）</p>`:
-     `<div class="chips" style="margin-top:8px">${['採用','不採用'].map(o=>`<label><input type="radio" name="${esc(a.id)}" value="${o}">${o}</label>`).join('')}</div>`}</div>`).join('')||'<p class="note">応募者はまだいません。</p>'}
+     `<div class="chips" style="margin-top:8px">${['採用','不採用'].map(o=>`<label><input type="radio" name="${esc(a.id)}" value="${o}">${o}</label>`).join('')}</div>`}</div>`).join('')||'<p class="note">応募者はまだいません。</p>'}`;
+}
+async function c04(){
+  const T='応募者の確認';loading(T);const job=C.q.get('job')||'',group=C.q.get('group')||'';
+  let ds;try{ds=group?await call('groupApplicants',{groupId:group}):[await call('applicants',{jobId:job})]}catch(e){return fail(T,e)}
+  const many=!!group;
+  const shown=many?ds.filter(d=>d.list.length):ds;
+  const pending=[].concat.apply([],ds.map(d=>d.list.filter(a=>a.status==='パートナー確認中'&&!a.answer).map(a=>({a,jobId:d.job.id}))));
+  shell(T,`<form id="f">${many?`<p class="note">${CAL_IC} まとめ依頼（${ds.length}日分）の応募者を、日ごとに出しています。応募のない日は出していません。</p>`:''}
+  ${shown.map(d=>c04Section(d,many)).join('')||'<p class="note">応募者はまだいません。</p>'}
   <p class="note">採用が確定すると、会員ID・氏名・電話番号・住所・年齢が表示されます。メールアドレスは表示されません。</p>
   <button class="btn-main" type="submit" ${pending.length?'':'disabled'}>回答を送信</button></form>`);
   bindSubmit(document.getElementById('f'),T,async fd=>{
-    const answers={};pending.forEach(a=>{const v=fd.get(a.id);if(v)answers[a.id]=v});
-    await call('answer',{jobId:job,answers});
+    const by={};pending.forEach(x=>{const v=fd.get(x.a.id);if(v)(by[x.jobId]=by[x.jobId]||{})[x.a.id]=v});
+    const keys=Object.keys(by);
+    if(!keys.length)throw new Error('採用か不採用を選んでください。');
+    for(const k of keys)await call('answer',{jobId:k,answers:by[k]});
     done(T,'<b style="font-size:17px">回答を受け付けました</b><p class="note">運営から応募者へ連絡します。</p>');
   });
 }

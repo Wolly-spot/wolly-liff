@@ -159,3 +159,62 @@ h3.jtitle{font-size:16px}
 .grid2>*,.grid3>*{min-width:0}
 .fld input[type=date],.fld input[type=time],.fld input[type=datetime-local]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;text-align:left}
 .fld input::-webkit-date-and-time-value{text-align:left}
+
+/* ---------- カレンダー（11/26：求人依頼で勤務日をいくつでも選ぶ・求人一覧でお仕事のある日・わたしの予定） ---------- */
+.cal{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:8px}
+.cal-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.cal-h b{display:inline-flex;align-items:center;gap:6px;font-size:16px}
+.cal-h b svg{color:var(--accent)}
+.cal-nav{width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);font-size:22px;line-height:1;color:var(--ink)}
+.cal-w,.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-w span{text-align:center;font-size:11.5px;color:var(--muted);padding:2px 0}
+.cal-w .sun,.cd.sun b{color:var(--ng)}
+.cal-w .sat,.cd.sat b{color:var(--accent)}
+.cd{min-height:48px;border:1px solid transparent;border-radius:10px;background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5px 0 3px;gap:1px;color:var(--ink);font:inherit}
+.cd b{font-size:14px;font-weight:700;line-height:1.2}
+.cd small{font-size:9.5px;line-height:1.2;white-space:nowrap;font-weight:700}
+.cd.empty{background:none}
+.cd:disabled{background:none;opacity:.45}
+.cd.today{border-color:var(--ink)}
+.cd.has{background:var(--accent-weak)}
+.cd.has small{color:var(--accent)}
+.cd.work{background:var(--ok-weak);border-color:var(--ok)}.cd.work small{color:var(--ok)}
+.cd.in{background:var(--warn-weak);border-color:var(--warn)}.cd.in small{color:var(--warn)}
+.cd.done{background:var(--ok)}.cd.done b,.cd.done small{color:var(--on-accent)!important}
+.cd.wait{background:var(--warn-weak)}.cd.wait small{color:var(--warn)}
+.cd.on{background:var(--accent);border-color:var(--accent)}
+.cd.on b,.cd.on small{color:var(--on-accent)!important}
+.calquick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.calquick .btn-sub{font-size:13px;min-height:44px;padding:0 6px}
+.calquick [data-q="clr"]{grid-column:1/-1}
+.datesum{margin:0;font-size:13.5px;display:flex;flex-direction:column;gap:2px}
+.datesum b{display:inline-flex;align-items:center;gap:6px;color:var(--accent)}
+.datesum span{color:var(--muted);font-size:12.5px}
+.linkish{border:0;background:none;color:var(--accent);text-decoration:underline;padding:6px 0;text-align:left;font:inherit;font-size:13px;min-height:44px}
+.calcard{display:flex;flex-direction:column;gap:8px}
+.sec svg,.sub svg{vertical-align:-4px;margin-right:4px;color:var(--accent)}
+.sub{font-size:14px;margin:8px 0 0;display:flex;flex-direction:column;gap:2px}
+.daychips label{padding:6px 12px;min-height:40px;font-size:13.5px}
+.daylist{display:flex;flex-direction:column;gap:6px}
+.dayrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-height:48px;background:var(--surface)}
+.dayrow input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.dayrow b{min-width:72px}
+.dayrow small{color:var(--muted);font-size:12px}
+.dayrow.off{opacity:.7;background:var(--surface2)}
+.dayrow:has(input:checked){border-color:var(--accent);background:var(--accent-weak)}
+.daysec{border-top:2px solid var(--accent);padding-top:8px;margin-top:6px}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+.lg{font-size:11.5px;border-radius:999px;padding:2px 9px;border:1px solid var(--line);font-weight:700}
+.lg.work{background:var(--ok-weak);border-color:var(--ok);color:var(--ok)}
+.lg.in{background:var(--warn-weak);border-color:var(--warn);color:var(--warn)}
+.lg.done{background:var(--ok);border-color:var(--ok);color:var(--on-accent)}
+.lg.wait{background:var(--warn-weak);color:var(--warn)}
+/* 求人一覧：自分が応募した日（11/27） */
+.cd.mine{background:var(--ok-weak);border-color:var(--ok);position:relative}
+.cd.mine small{color:var(--ok)!important}
+.cd.mine::after{content:"✓";position:absolute;top:-5px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--ok);color:var(--on-accent);font-size:10px;font-weight:700;line-height:16px;text-align:center}
+.cd.mine.on{background:var(--accent);border-color:var(--ok)}
+.lg.has{background:var(--accent-weak);color:var(--accent);border-color:transparent}
+.lg.mine{background:var(--ok-weak);border-color:var(--ok);color:var(--ok)}
+.daychips label.applied{background:var(--ok-weak);border-color:var(--ok);color:var(--ok);font-weight:700}
+.mybadge{margin:0;display:inline-block;align-self:flex-start;background:var(--ok-weak);color:var(--ok);border:1px solid var(--ok);border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:700}
