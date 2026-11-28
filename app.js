@@ -8,6 +8,23 @@ const CFG = window.WOLLY || {};
 const TEST = !!CFG.test;
 const C = { page: '', q: new URLSearchParams() };
 let ID_TOKEN = '';
+/* エリア（メンバーの画面）。そのエリアの公式LINEのメニューは ?area=fujimi のように付けて開く。
+ * 一度開いたエリアはこのスマホに覚えて、画面を移っても同じエリアのまま。空はさいたま市 */
+let AREA = '';
+function initArea(){
+  if(APP!=='user')return;
+  const a=C.q.get('area')||'';
+  if(/^[a-z]{2,20}$/.test(a)){AREA=a;try{localStorage.setItem('wolly.area',a)}catch(_){}}
+  else{try{AREA=localStorage.getItem('wolly.area')||''}catch(_){AREA=''}}
+}
+/* パートナーの依頼：掲載エリアのえらびかた（使えるエリアが2つ以上のときだけ出す） */
+function areaField(areas,cur){
+  if(!areas||areas.length<2)return '';
+  const opts=areas.map(x=>[x.key,x.name]).concat([['both','すべてのエリア']]);
+  cur=cur||'saitama';
+  return `<div class="fld"><span class="lbl">掲載するエリア<span class="req">必須</span></span><div class="chips">${opts.map(([k,n])=>`<label><input type="radio" name="area" value="${esc(k)}" ${k===cur?'checked':''}>${esc(n)}</label>`).join('')}</div><p class="note">えらんだエリアのメンバーにお知らせします。「すべてのエリア」はどのエリアにも出ます。</p></div>`;
+}
+function areaName(areas,k){if(k==='both')return 'すべてのエリア';const x=(areas||[]).find(a=>a.key===k);return x?x.name:''}
 const OPT_TIMES = ['平日AM 9:00〜12:00','平日AM 9:00〜15:00','平日AM 9:00〜18:00','土日AM 9:00〜12:00','土日AM 9:00〜15:00','土日AM 9:00〜18:00','行事に合わせて調整したい','短時間ならいつでも可'];
 const OPT_JOBS = ['スーパーなどのレジ','イベントや行事のサポート','子供関連（工作や見守り）','配膳、片付けなどの軽作業','チラシ配り、アンケート','配信のお仕事','塾の補助','トリマー・動物病院のケア','美容師スタイリスト','美容師アシスタント','保育士','保育補助スタッフ'];
 const AD_TYPES = ['お店・サービスの紹介','クーポン','イベント・教室の告知'];
@@ -28,6 +45,7 @@ async function call(action,payload){
 }
 function url(page,extra){
   const q=new URLSearchParams({page});Object.keys(extra||{}).forEach(k=>q.set(k,extra[k]));
+  if(AREA&&APP==='user'&&!q.has('area'))q.set('area',AREA);
   if(TEST){q.set('uid',CFG.uid);return CFG.baseUrl+'?'+q.toString()}
   return location.pathname+'?'+q.toString();
 }
@@ -215,6 +233,7 @@ async function u00(){
     const p={name:fd.get('name'),kana:fd.get('kana'),birth:fd.get('birth'),sex:fd.get('sex')||'',addr:fd.get('addr'),tel:fd.get('tel'),mail:fd.get('mail'),
       licenses:{keep:fd.getAll('licKeep'),add:lic.map(x=>({name:x.name,data:x.data}))},
       times:fd.getAll('times'),jobs:fd.getAll('jobs'),zoomWish:fd.get('zoomWish'),gName:fd.get('gName'),gTel:fd.get('gTel'),gAgree:fd.has('gAgree'),agree:fd.has('agree')};
+    if(AREA)p.area=AREA;
     const r=await call('saveUser',p);
     done(T,`<b style="font-size:17px">${r.first?'登録が完了しました':'登録内容を更新しました'}</b><p>会員ID：${esc(r.memberId)}</p>
       <div class="survey"><p>Worklistをご覧いただき、希望するお仕事についてのアンケートにもご協力ください。</p><a class="btn-main linkbtn" href="${esc(SURVEY_URL)}" target="_blank" rel="noopener">アンケートに回答する</a></div>`,true);
@@ -226,7 +245,7 @@ async function u00(){
  * 同じ内容で何日もある求人（まとめ依頼）は1枚のカードにまとめ、日にちを選んでエントリーする */
 async function u01(){
   const T='求人一覧';loading(T);
-  let l,mine=[];try{[l,mine]=await Promise.all([call('jobList'),call('myApps').catch(()=>[])])}catch(e){return fail(T,e)}
+  let l,mine=[];try{[l,mine]=await Promise.all([call('jobList',AREA?{area:AREA}:{}),call('myApps').catch(()=>[])])}catch(e){return fail(T,e)}
   if(!l.length)return shell(T,'<p class="note">いま募集中のお仕事はありません。新着はLINEでお知らせします。</p>');
   /* 自分が応募している求人（選考中・採用・就業済み）。カレンダーとカードに「応募済」を出す */
   const myJob={};(mine||[]).forEach(a=>{if(['選考中','採用','就業済み'].indexOf(a.status)>=0)myJob[a.jobId]=a});
@@ -409,6 +428,7 @@ async function c02(){
   const fareOn=j.fare&&j.fare!=='なし',fareNum=(String(j.fare||'').match(/([\d,]+)円/)||[])[1];
   shell(editId?'求人依頼の修正':T,`<form id="f">
   ${editId?`<div class="warnbox"><b>運営からの確認事項</b>${esc(j.reason)}</div>`:''}
+  ${areaField(d.areas,j.area)}
   <div class="fld"><label for="title">職種・仕事内容<span class="req">必須</span></label><input id="title" name="title" value="${esc(j.title)}" required></div>
   ${editId?`<div class="fld"><label for="date">勤務日<span class="req">必須</span></label><input id="date" name="date" type="date" min="${ymd(tm)}" value="${esc(j.date)}" required></div>`
   :`<div class="fld" id="datesFld"><span class="lbl">勤務日（いくつでも選べます）<span class="req">必須</span></span>
@@ -462,6 +482,7 @@ async function c02(){
   f.addEventListener('change',e=>{if(e.target.name==='fareKind')document.getElementById('fareBox').hidden=e.target.value!=='あり'});
   bindSubmit(f,T,async fd=>{
     const p={jobId:editId||''};['title','start','end','rest','wage','need','place','cond','license','fareKind','fareAmount','belong','remarks'].forEach(k=>p[k]=fd.get(k));
+    if(fd.get('area'))p.area=fd.get('area');
     if(editId){p.date=fd.get('date');p.deadline=fd.get('deadline')}
     else{if(!sel.size)throw new Error('勤務日を選んでください（カレンダーの日にちをタップ）。');p.dates=Array.from(sel).sort();p.deadlineRule=fd.get('deadlineRule')}
     p.images=imgs;
@@ -484,6 +505,7 @@ function confirmJob(f,p,o){
     const box=document.createElement('div');box.id='cfm';box.className='cfm';
     box.innerHTML=`<p class="warnbox"><b>まだ送っていません。</b>内容を確かめて、下の「この内容で送る」を押してください。</p>
     <dl class="cfm-list">
+    ${p.area?row('掲載エリア',esc(areaName(o.d.areas,p.area))):''}
     ${row('職種・仕事内容',esc(p.title))}
     ${row('勤務日',o.editId?esc(mdw(p.date)):`${CAL_IC}<b>${p.dates.length}日</b><br>${esc(p.dates.map(mdw).join('、'))}`)}
     ${row('時間',esc(p.start+'〜'+p.end+'（休憩'+p.rest+'分）'))}
@@ -519,6 +541,7 @@ async function c07(){
   shell(editId?'広告依頼の修正':T,`<form id="f">
   ${editId?`<div class="warnbox"><b>運営からの確認事項</b>${esc(a.reason)}</div>`:''}
   <p class="note">メンバー向けの「街ナビ・クーポン」ページに掲載します。運営が内容を確認してからの掲載です。</p>
+  ${areaField(d.areas,a.area)}
   <div class="fld"><span class="lbl">掲載の種類<span class="req">必須</span></span>${chips('adType',AD_TYPES,[kind],'radio')}</div>
   <div class="fld"><span class="lbl">カテゴリ<span class="req">必須</span></span>${chips('category',AD_CATEGORIES,[a.category||''],'radio')}</div>
   <div class="fld"><label for="title">掲載タイトル（30字まで）<span class="req">必須</span></label><input id="title" name="title" maxlength="30" value="${esc(a.title)}" required></div>
@@ -543,6 +566,7 @@ async function c07(){
   });
   bindSubmit(f,T,async fd=>{
     const p={adId:editId||''};['adType','category','title','body','addr','hours','contact','coupon','couponTerms','couponUntil','eventAt','eventPlace','from','to','remarks'].forEach(k=>p[k]=fd.get(k));
+    if(fd.get('area'))p.area=fd.get('area');
     const r=await call('requestAd',p);
     done(T,`<b style="font-size:17px">${editId?'修正した依頼を送信しました':'広告の依頼を送信しました'}</b><p>広告番号 ${esc(r.id)}</p><p class="note">内容を確認のうえ、掲載のご連絡をします。</p><p><a class="btn-sub" href="${esc(url('c03'))}">依頼状況を見る</a></p>`);
   });
@@ -624,7 +648,7 @@ window.addEventListener('pageshow', () => busy(false));
 (async () => {
   try {
     if (TEST) {
-      C.q = new URLSearchParams(CFG.query || ''); C.page = CFG.page || '';
+      C.q = new URLSearchParams(CFG.query || ''); C.page = CFG.page || ''; initArea();
       /* テスト用画面の上に、LINEのリッチメニューの代わりになるボタンを出す（URLを打たずに画面を行き来できる） */
       const menu = APP === 'client'
         ? [['c01', 'パートナー登録'], ['c02', '依頼する'], ['c03', '依頼状況'], ['c05', '無料相談']]
@@ -641,7 +665,7 @@ window.addEventListener('pageshow', () => busy(false));
       if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
       ID_TOKEN = liff.getIDToken();
       if (!ID_TOKEN) throw new Error('LINEの情報を取得できませんでした。LIFFアプリのスコープに openid を設定してください。');
-      C.q = new URLSearchParams(location.search); C.page = C.q.get('page') || '';
+      C.q = new URLSearchParams(location.search); C.page = C.q.get('page') || ''; initArea();
     }
     (PAGES[C.page] || Object.values(PAGES)[0])();
   } catch (e) {
