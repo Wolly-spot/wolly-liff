@@ -110,6 +110,10 @@ body[data-app="user"] .liff{width:calc(100% - 24px);margin:12px auto 32px;border
 .lic-row .btn-sub{width:auto;padding:0 12px;min-height:40px}
 .lic-now{display:flex;flex-direction:column;gap:6px}
 .filebtn{cursor:pointer}
+.imgbtns{display:flex;gap:8px;margin-top:8px}
+.imgbtns .filebtn{flex:1}
+.imgbtns #imgDel{width:auto;padding:0 16px}
+.thumbs:not(:empty){margin-top:4px}
 
 /* ---------- テスト用画面のメニュー（LINEのリッチメニューの代わり） ---------- */
 .testmenu{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px;padding:8px;background:var(--warn-weak);border-bottom:1px solid var(--line)}

@@ -98,7 +98,7 @@ function bindSubmit(form,title,fn){
     const bad=checkForm(form);
     if(bad){goTo(bad);toast('入力内容を確認してください（赤字の項目）');return}
     const btn=form.querySelector('[type=submit]'),label=btn.textContent;btn.disabled=true;btn.textContent='送信中…';
-    busy(true,form.querySelector('input[type=file]')&&form.querySelector('input[type=file]').files.length?'画像と一緒に送信しています…':'送信しています…');
+    busy(true,form.dataset.img?'画像と一緒に送信しています…':'送信しています…');
     try{await fn(new FormData(form))}
     catch(err){const m=err&&err.message?err.message:'エラーが発生しました';showError(form,m);toast('入力内容を確認してください');btn.disabled=false;btn.textContent=label}
     finally{busy(false)}
@@ -149,15 +149,20 @@ function toJpeg(img,max,limit){const s=Math.min(1,max/Math.max(img.width,img.hei
 /* 保存用（長い辺1280px）と、求人一覧用の小さい画像（長い辺360px）を作る */
 async function shrink(file){const img=await loadImg(file);return {data:toJpeg(img,1280,1.6e6),thumb:toJpeg(img,360,40000)}}
 
-/* 画像の欄（1枚）：選んだら縮小してプレビューを出し、set(縮小した画像の配列) を呼ぶ */
+/* 画像の欄（1枚）：選んだら縮小してプレビューを出し、set(縮小した画像の配列) を呼ぶ。
+ * 選ぶたびに input を空にするので、何回でも選びなおせる（同じ input のままだと、スマホで2回目の change が来ないことがある）。「外す」で取り消し */
 function bindImages(form,set){
-  form.addEventListener('change',async e=>{
-    if(e.target.name!=='images')return;
-    const box=document.getElementById('thumbs'),files=Array.from(e.target.files||[]);
-    if(files.length>1){toast('画像は1枚までです');e.target.value='';set([]);box.innerHTML='';return}
+  const inp=document.getElementById('images'),box=document.getElementById('thumbs'),pick=document.getElementById('imgPick'),del=document.getElementById('imgDel');
+  const show=v=>{set(v);form.dataset.img=v.length?'1':'';box.innerHTML=v.map(s=>`<img src="${s.thumb}" alt="選んだ画像">`).join('');pick.textContent=v.length?'別の画像にえらびなおす':pick.dataset.label;del.hidden=!v.length};
+  pick.dataset.label=pick.textContent;
+  inp.addEventListener('change',async e=>{
+    e.stopPropagation();
+    const files=Array.from(inp.files||[]);inp.value='';
+    if(!files.length)return;
     busy(true,'画像を準備しています…');
-    try{const v=await Promise.all(files.map(shrink));set(v);box.innerHTML=v.map(s=>`<img src="${s.thumb}" alt="">`).join('')}catch(err){toast(err.message);e.target.value='';set([]);box.innerHTML=''}finally{busy(false)}
+    try{show([await shrink(files[0])])}catch(err){toast(err.message)}finally{busy(false)}
   });
+  del.addEventListener('click',()=>show([]));
 }
 
 /* ===================== メンバー ===================== */
@@ -416,8 +421,8 @@ async function c02(){
   <div class="fld"><label for="rest">休憩（分）<span class="req">必須</span></label><input id="rest" name="rest" type="number" inputmode="numeric" min="0" step="1" value="${esc(j.rest!=null?j.rest:60)}" required></div></div>
   <p class="note">休憩がない場合は 0 を入れてください。</p>
   <p class="note" id="night" hidden>22時〜翌5時を含むため、18歳未満の方は応募できなくなります。</p>
-  <div class="grid2"><div class="fld"><label for="wage">時給（円）<span class="req">必須</span></label><input id="wage" name="wage" type="number" inputmode="numeric" min="${esc(d.minWage||1)}" value="${esc(j.wage||d.minWage||'')}" data-minmsg="時給は最低賃金（${esc(Number(d.minWage||0).toLocaleString('ja-JP'))}円）以上にしてください。" required><p class="note">最低賃金（${esc(Number(d.minWage||0).toLocaleString('ja-JP'))}円）以上で入力します。</p></div>
-  <div class="fld"><label for="need">募集人数<span class="req">必須</span></label><input id="need" name="need" type="number" min="1" value="${esc(j.need)}" required></div></div>
+  <div class="fld"><label for="wage">時給（円）<span class="req">必須</span></label><input id="wage" name="wage" type="number" inputmode="numeric" min="${esc(d.minWage||1)}" value="${esc(j.wage||d.minWage||'')}" data-minmsg="時給は最低賃金（${esc(Number(d.minWage||0).toLocaleString('ja-JP'))}円）以上にしてください。" required><p class="note">最低賃金（${esc(Number(d.minWage||0).toLocaleString('ja-JP'))}円）以上で入力します。</p></div>
+  <div class="fld"><label for="need">募集人数（1日あたり）<span class="req">必須</span></label><input id="need" name="need" type="number" inputmode="numeric" min="1" value="${esc(j.need)}" required><p class="note">${editId?'この日に来てほしい人数を入れてください。':'1日に来てほしい人数を入れてください。何日か選んだときも、各日の人数です（合計ではありません）。'}</p></div>
   ${editId?`<div class="fld"><label for="deadline">応募締切<span class="req">必須</span></label><input id="deadline" name="deadline" type="datetime-local" value="${esc(toLocal(j.deadline))}" required><p class="note">勤務開始の2時間前までの日時にしてください。</p></div>`
   :`<div class="fld"><label for="deadlineRule">応募締切（日ごとに自動で決まります）<span class="req">必須</span></label><select id="deadlineRule" name="deadlineRule">${DEADLINE_RULES.map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><p class="note" id="dlEx">勤務開始の2時間前より前にしてください。</p></div>`}
   <div class="fld"><label for="place">勤務地（空欄なら所在地）</label><input id="place" name="place" value="${esc(j.place)}" placeholder="${esc(d.addr)}"></div>
@@ -425,8 +430,11 @@ async function c02(){
   <div class="fld"><span class="lbl">免許・資格が必要なお仕事<span class="req">必須</span></span>${chips('license',['なし','あり'],[j.license||'なし'],'radio')}<p class="note">例：保育士・美容師・調理師など。「あり」の求人は手数料が25%、「なし」は15%です。</p></div>
   <div class="fld"><span class="lbl">交通費</span>${chips('fareKind',['なし','あり'],[fareOn?'あり':'なし'],'radio')}<div id="fareBox" ${fareOn?'':'hidden'}><label class="sr" for="fareAmount">交通費の上限（円）</label><input id="fareAmount" name="fareAmount" type="number" min="0" placeholder="上限の金額（円）" value="${esc(fareNum?fareNum.replace(/,/g,''):'')}"></div></div>
   <div class="fld"><label for="belong">持ち物・服装・注意事項</label><textarea id="belong" name="belong">${esc(j.belong)}</textarea></div>
-  <div class="fld"><label for="images">画像（1枚・任意）</label><input id="images" name="images" type="file" accept="image/&#42;">
-    <p class="note">${editId&&j.imageCount?`画像が付いています。選び直すと置き換わります。`:'職場の写真など。求人一覧で、求人の右上に表示されます。自動で小さくしてから送ります。'}</p><div class="thumbs" id="thumbs"></div></div>
+  <div class="fld"><span class="lbl">画像（1枚・任意）</span>
+    <p class="note">${editId&&j.imageCount?`画像が付いています。えらびなおすと置き換わります。`:'職場の写真など。求人一覧で、求人の右上に表示されます。自動で小さくしてから送ります。'}</p>
+    <div class="thumbs" id="thumbs"></div>
+    <div class="imgbtns"><label class="btn-sub filebtn" for="images" id="imgPick">画像をえらぶ</label><button type="button" class="btn-sub" id="imgDel" hidden>外す</button></div>
+    <input id="images" type="file" accept="image/&#42;" class="sr"></div>
   <div class="fld"><label for="remarks">備考（任意）</label><textarea id="remarks" name="remarks">${esc(j.remarks)}</textarea></div>
   <button class="btn-main" type="submit">${editId?'直して再送信':'依頼を送信'}</button></form>`);
   const f=document.getElementById('f');let imgs=[];
