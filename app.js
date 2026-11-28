@@ -436,7 +436,7 @@ async function c02(){
     <div class="imgbtns"><label class="btn-sub filebtn" for="images" id="imgPick">画像をえらぶ</label><button type="button" class="btn-sub" id="imgDel" hidden>外す</button></div>
     <input id="images" type="file" accept="image/&#42;" class="sr"></div>
   <div class="fld"><label for="remarks">備考（任意）</label><textarea id="remarks" name="remarks">${esc(j.remarks)}</textarea></div>
-  <button class="btn-main" type="submit">${editId?'直して再送信':'依頼を送信'}</button></form>`);
+  <button class="btn-main" type="submit">内容を確認する</button></form>`);
   const f=document.getElementById('f');let imgs=[];
   bindImages(f,v=>{imgs=v});
   /* 勤務日のカレンダー（新しい依頼のとき） */
@@ -465,9 +465,45 @@ async function c02(){
     if(editId){p.date=fd.get('date');p.deadline=fd.get('deadline')}
     else{if(!sel.size)throw new Error('勤務日を選んでください（カレンダーの日にちをタップ）。');p.dates=Array.from(sel).sort();p.deadlineRule=fd.get('deadlineRule')}
     p.images=imgs;
-    const r=await call('requestJob',p);
+    if(!await confirmJob(f,p,{editId,j,d,imgs}))return;
+    let r;try{r=await call('requestJob',p)}catch(err){backToForm(f);throw err}
     const ids=r.ids||[r.id];
     done(T,`<b style="font-size:17px">${editId?'修正した依頼を送信しました':'依頼を送信しました'}</b><p>求人番号 ${esc(ids.length>1?ids[0]+'〜'+ids[ids.length-1]+'（'+ids.length+'日分）':ids[0])}</p>${ids.length>1?`<p class="note">${esc(datesText(p.dates))}</p>`:''}<p class="note">内容を確認のうえ、掲載のご連絡をします。</p><p><a class="btn-sub" href="${esc(url('c03'))}">依頼状況を見る</a></p>`);
+  });
+}
+
+/* 求人依頼の確認画面：入力した内容を見せて「この内容で送る」→ true、「もどって直す」→ false（入力画面にもどる） */
+function backToForm(f){const c=document.getElementById('cfm');if(c)c.remove();f.hidden=false}
+function confirmJob(f,p,o){
+  return new Promise(ok=>{
+    busy(false);
+    const row=(k,v)=>v?`<div class="cfm-row"><dt>${esc(k)}</dt><dd>${v}</dd></div>`:'';
+    const many=!o.editId&&p.dates.length>1;
+    const dl=DEADLINE_RULES.find(x=>x[0]===p.deadlineRule);
+    const img=o.imgs.length?`<img class="cfm-img" src="${o.imgs[0].thumb}" alt="えらんだ画像">`:esc(o.editId&&o.j.imageCount?'今の画像のまま':'なし');
+    const box=document.createElement('div');box.id='cfm';box.className='cfm';
+    box.innerHTML=`<p class="warnbox"><b>まだ送っていません。</b>内容を確かめて、下の「この内容で送る」を押してください。</p>
+    <dl class="cfm-list">
+    ${row('職種・仕事内容',esc(p.title))}
+    ${row('勤務日',o.editId?esc(mdw(p.date)):`${CAL_IC}<b>${p.dates.length}日</b><br>${esc(p.dates.map(mdw).join('、'))}`)}
+    ${row('時間',esc(p.start+'〜'+p.end+'（休憩'+p.rest+'分）'))}
+    ${row('時給',esc(yen(p.wage)))}
+    ${row('募集人数',`<b>${many?'各日 ':''}${esc(p.need)}名</b>`+(many?`<br><span class="note">${p.dates.length}日で のべ${esc(String(p.need*p.dates.length))}名</span>`:''))}
+    ${row('応募締切',esc(o.editId?String(p.deadline).replace('T',' '):(dl?dl[1]:'')+(p.dates.length?'（例：'+mdw(p.dates[0])+'は '+deadlineFor(p.dates[0],p.start,p.deadlineRule)+'）':'')))}
+    ${row('勤務地',esc(p.place||o.d.addr||''))}
+    ${row('応募条件',esc(p.cond))}
+    ${row('免許・資格',esc(p.license==='あり'?'必要（手数料25%）':'いらない（手数料15%）'))}
+    ${row('交通費',esc(p.fareKind==='あり'?(p.fareAmount?'あり（上限'+yen(p.fareAmount)+'）':'あり'):'なし'))}
+    ${row('持ち物・服装',esc(p.belong))}
+    ${row('画像',img)}
+    ${row('備考',esc(p.remarks))}
+    </dl>
+    <button type="button" class="btn-main" data-cfm="send">${o.editId?'この内容で再送信する':'この内容で送る'}</button>
+    <button type="button" class="btn-sub" data-cfm="back">もどって直す</button>`;
+    f.before(box);f.hidden=true;window.scrollTo(0,0);
+    box.addEventListener('click',e=>{const b=e.target.closest('[data-cfm]');if(!b)return;
+      if(b.dataset.cfm==='back'){backToForm(f);const sb=f.querySelector('[type=submit]');sb.disabled=false;sb.textContent='内容を確認する';ok(false)}
+      else{box.querySelectorAll('button').forEach(x=>x.disabled=true);b.textContent='送信中…';busy(true,o.imgs.length?'画像と一緒に送信しています…':'送信しています…');ok(true)}});
   });
 }
 
